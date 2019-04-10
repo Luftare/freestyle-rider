@@ -30,10 +30,13 @@ class Player {
     this.positionZ = metersToPixels(2);
     this.velocity = new Vector(0, -100);
     this.velocityZ = 0;
+    this.moment = 1;
+    this.angularVelocity = 0;
     this.boardDirection = new Vector(0, -1);
     this.boardLength = metersToPixels(1.6);
     this.boardWidth = metersToPixels(0.4);
     this.bodyAngle = 0;
+    this.lastBoardAngle = this.boardDirection.angle;
     this.maxBodyAngle = Math.PI * 0.3;
     this.weight = 1;
     this.forces = [];
@@ -56,6 +59,7 @@ class Player {
 
   update(dt) {
     this.handleInput(dt);
+    this.applyMomentum(dt);
     this.applyGravity(dt);
     this.applySlopePhysics(dt);
     this.applyBoardPhysics(dt);
@@ -68,6 +72,7 @@ class Player {
     const { ArrowLeft, ArrowRight } = gameInput.keysDown;
     const spaceKey = gameInput.keysDownOnce[' '];
     const rotation = 5 * dt;
+    const boardBodyRotateRatio = 0.8;
 
     if (ArrowLeft) {
       this.bodyAngle -= rotation;
@@ -84,18 +89,57 @@ class Player {
 
     const shouldRotateBoard = ArrowRight || ArrowLeft;
 
-    if (shouldRotateBoard) {
-      const boardRotateAngle = 3 * this.bodyAngle * dt;
-      this.boardDirection.rotate(boardRotateAngle);
+    if (this.isGrounded()) {
+      if (shouldRotateBoard) {
+        const boardRotateAngle = 3 * this.bodyAngle * dt;
+        this.boardDirection.rotate(boardRotateAngle);
+      } else {
+        this.bodyAngle *= 0.85;
+      }
+
+      const shouldJump = spaceKey;
+
+      if (shouldJump) {
+        this.angularVelocity = this.boardDirection.angle - this.lastBoardAngle;
+        this.velocityZ = metersToPixels(4);
+        this.positionZ += 0.1;
+      }
     } else {
-      this.bodyAngle *= 0.85;
+      const bodyCanTurn = Math.abs(this.bodyAngle) < this.maxBodyAngle;
+
+      if (bodyCanTurn) {
+        if (ArrowLeft) {
+          this.boardDirection.rotate(rotation * boardBodyRotateRatio);
+        }
+
+        if (ArrowRight) {
+          this.boardDirection.rotate(-rotation * boardBodyRotateRatio);
+        }
+      }
+
+      const shouldStraightenBody = !ArrowLeft && !ArrowRight;
+
+      if (shouldStraightenBody) {
+        const shouldLerpAngle = Math.abs(this.bodyAngle) > 0.05;
+
+        if (shouldLerpAngle) {
+          const bodyAngleSign = this.bodyAngle < 0 ? -1 : 1;
+          this.bodyAngle -= bodyAngleSign * rotation;
+          this.boardDirection.rotate(
+            bodyAngleSign * rotation * boardBodyRotateRatio
+          );
+        } else {
+          this.bodyAngle = 0;
+        }
+      }
     }
+  }
 
-    const shouldJump = spaceKey && this.isGrounded();
+  applyMomentum() {
+    this.lastBoardAngle = this.boardDirection.angle;
 
-    if (shouldJump) {
-      this.velocityZ = metersToPixels(4);
-      this.positionZ += 0.1;
+    if (!this.isGrounded()) {
+      this.boardDirection.rotate(this.angularVelocity);
     }
   }
 
@@ -112,6 +156,8 @@ class Player {
   }
 
   applySlopePhysics() {
+    if (!this.isGrounded()) return;
+
     const gravityForceMagnitude = gravity * this.weight;
     const gravityForceSlopeComponent = new Vector(
       0,
@@ -121,6 +167,8 @@ class Player {
   }
 
   applyBoardPhysics() {
+    if (!this.isGrounded()) return;
+
     const edgeFrictionFactor = 1.5;
 
     const edgeForceMagnitude =
