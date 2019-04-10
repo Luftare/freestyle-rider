@@ -55,7 +55,6 @@ class Player {
   }
 
   update(dt) {
-    console.log(pixelsToMeters(this.positionZ));
     this.handleInput(dt);
     this.applyGravity(dt);
     this.applySlopePhysics(dt);
