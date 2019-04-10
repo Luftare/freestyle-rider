@@ -10,7 +10,7 @@ function metersToPixels(meters) {
 const canvas = document.querySelector('canvas');
 const paint = new Paint(canvas);
 const gameInput = new GameInput(canvas);
-const slopeAngle = 15 * (Math.PI / 180);
+const slopeAngle = 25 * (Math.PI / 180);
 const gravity = metersToPixels(-9.81);
 
 class Player {
@@ -38,6 +38,7 @@ class Player {
   update(dt) {
     this.handleInput(dt);
     this.applySlopePhysics(dt);
+    this.applyBoardPhysics(dt);
     this.applyAirFriction(dt);
     this.applyForces(dt);
     if (this.position.y < 0) this.position.y = canvas.height;
@@ -45,7 +46,7 @@ class Player {
 
   handleInput(dt) {
     const { ArrowLeft, ArrowRight } = gameInput.keysDown;
-    const rotation = 2 * dt;
+    const rotation = 4 * dt;
 
     if (ArrowLeft) {
       this.boardDirection.rotate(-rotation);
@@ -65,8 +66,22 @@ class Player {
     this.forces.push(gravityForceSlopeComponent);
   }
 
+  applyBoardPhysics() {
+    const edgeFrictionFactor = 1.5;
+
+    const edgeForceMagnitude =
+      this.velocity.clone().cross(this.boardDirection) * edgeFrictionFactor;
+
+    const edgeForce = this.boardDirection
+      .clone()
+      .rotate(Math.PI / 2)
+      .scale(edgeForceMagnitude);
+
+    this.forces.push(edgeForce);
+  }
+
   applyAirFriction() {
-    const airFrictionFactor = 0.000001;
+    const airFrictionFactor = 0.0000005;
     const forceMagnitude = -airFrictionFactor * this.velocity.length ** 2;
     const force = this.velocity.clone().scale(forceMagnitude);
     this.forces.push(force);
