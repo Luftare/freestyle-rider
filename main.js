@@ -1,6 +1,7 @@
 import Vector from 'vector';
 import Paint from 'paint';
 import Loop from 'loop';
+import SnowParticle from './SnowParticle';
 import GameInput from './GameInput';
 
 let renderScale = 40;
@@ -18,10 +19,12 @@ function getShadowPosition({ x, y }, z) {
 }
 
 const canvas = document.querySelector('canvas');
+const ctx = canvas.getContext('2d');
 const paint = new Paint(canvas);
 const gameInput = new GameInput(canvas);
 const slopeAngle = 20 * (Math.PI / 180);
 const gravity = metersToPixels(-9.81);
+let particles = [];
 const SHADOW_COLOR = 'grey';
 
 class Player {
@@ -66,6 +69,7 @@ class Player {
     this.applyAirFriction(dt);
     this.applyForces(dt);
     if (this.position.y < 0) this.position.y = canvas.height;
+    this.emitParticles();
   }
 
   handleInput(dt) {
@@ -201,6 +205,20 @@ class Player {
     this.forces = [];
   }
 
+  emitParticles() {
+    if (!this.isGrounded()) return;
+    const [nose, tail] = this.getBoardTipPositions();
+
+    [...Array(3)].forEach(() => {
+      const toTail = nose
+        .clone()
+        .substract(tail)
+        .scale(Math.random());
+      const position = tail.clone().add(toTail);
+      particles.push(new SnowParticle(position));
+    });
+  }
+
   render() {
     this.renderBoard();
     this.renderRider();
@@ -240,17 +258,39 @@ class Player {
 
 const player = new Player();
 
+function update(dt) {
+  player.update(dt);
+  particles.forEach(particle => particle.update(dt));
+  particles = particles.filter(particle => particle.life > 0);
+  gameInput.clearState();
+}
+
+function render() {
+  canvas.width = canvas.width;
+  ctx.translate(
+    -player.position.x + canvas.width / 2,
+    -player.position.y + canvas.height / 1.5
+  );
+
+  paint.rect({
+    position: new Vector(0, canvas.height / 2),
+    width: canvas.width,
+    height: 50,
+    fill: 'lightblue'
+  });
+
+  player.renderShadow();
+
+  particles.forEach(particle => particle.render(paint));
+  player.render();
+}
+
 new Loop({
   animationFrame: true,
   autoStart: true,
   onTick: dtInMs => {
     const dtInSeconds = dtInMs / 1000;
-
-    player.update(dtInSeconds);
-    gameInput.clearState();
-
-    canvas.width = canvas.width;
-    player.renderShadow();
-    player.render();
+    update(dtInSeconds);
+    render();
   }
 });
