@@ -10,7 +10,7 @@ function metersToPixels(meters) {
 const canvas = document.querySelector('canvas');
 const paint = new Paint(canvas);
 const gameInput = new GameInput(canvas);
-const slopeAngle = 25 * (Math.PI / 180);
+const slopeAngle = 20 * (Math.PI / 180);
 const gravity = metersToPixels(-9.81);
 
 class Player {
@@ -20,6 +20,8 @@ class Player {
     this.boardDirection = new Vector(0, -1);
     this.boardLength = metersToPixels(1.6);
     this.boardWidth = metersToPixels(0.4);
+    this.bodyAngle = 0;
+    this.maxBodyAngle = Math.PI * 0.3;
     this.weight = 1;
     this.forces = [];
   }
@@ -46,14 +48,28 @@ class Player {
 
   handleInput(dt) {
     const { ArrowLeft, ArrowRight } = gameInput.keysDown;
-    const rotation = 4 * dt;
+    const rotation = 5 * dt;
 
     if (ArrowLeft) {
-      this.boardDirection.rotate(-rotation);
+      this.bodyAngle -= rotation;
     }
 
     if (ArrowRight) {
-      this.boardDirection.rotate(rotation);
+      this.bodyAngle += rotation;
+    }
+
+    this.bodyAngle = Math.max(
+      -this.maxBodyAngle,
+      Math.min(this.maxBodyAngle, this.bodyAngle)
+    );
+
+    const shouldRotateBoard = ArrowRight || ArrowLeft;
+
+    if (shouldRotateBoard) {
+      const boardRotateAngle = 3 * this.bodyAngle * dt;
+      this.boardDirection.rotate(boardRotateAngle);
+    } else {
+      this.bodyAngle *= 0.85;
     }
   }
 
@@ -101,6 +117,7 @@ class Player {
 
   render() {
     this.renderBoard();
+    this.renderRider();
   }
 
   renderBoard() {
@@ -109,6 +126,17 @@ class Player {
       stroke: 'black',
       lineCap: 'round',
       lineWidth: this.boardWidth
+    });
+  }
+
+  renderRider() {
+    paint.rect({
+      position: this.position,
+      angle: this.bodyAngle + this.boardDirection.angle,
+      anchor: new Vector(0.5, 0.5),
+      width: metersToPixels(1.1),
+      height: metersToPixels(0.3),
+      fill: 'red'
     });
   }
 }
