@@ -14,6 +14,7 @@
     "parcel": "^1.12.3"
   },
   "dependencies": {
+    "loop": "github:Luftare/loop",
     "paint": "github:Luftare/paint",
     "vector": "github:Luftare/Vector"
   }
