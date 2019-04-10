@@ -3,8 +3,18 @@ import Paint from 'paint';
 import Loop from 'loop';
 import GameInput from './GameInput';
 
+let renderScale = 40;
+
 function metersToPixels(meters) {
-  return meters * 40;
+  return meters * renderScale;
+}
+
+function pixelsToMeters(pixels) {
+  return pixels / renderScale;
+}
+
+function getShadowPosition({ x, y }, z) {
+  return new Vector(x, y).addX(z).addY(z * 0.5);
 }
 
 const canvas = document.querySelector('canvas');
@@ -12,11 +22,14 @@ const paint = new Paint(canvas);
 const gameInput = new GameInput(canvas);
 const slopeAngle = 20 * (Math.PI / 180);
 const gravity = metersToPixels(-9.81);
+const SHADOW_COLOR = 'grey';
 
 class Player {
   constructor() {
     this.position = new Vector(canvas.width / 2, 100);
+    this.positionZ = metersToPixels(2);
     this.velocity = new Vector(0, -100);
+    this.velocityZ = 0;
     this.boardDirection = new Vector(0, -1);
     this.boardLength = metersToPixels(1.6);
     this.boardWidth = metersToPixels(0.4);
@@ -24,6 +37,10 @@ class Player {
     this.maxBodyAngle = Math.PI * 0.3;
     this.weight = 1;
     this.forces = [];
+  }
+
+  isGrounded() {
+    return this.positionZ <= 0;
   }
 
   getBoardTipPositions() {
@@ -38,7 +55,9 @@ class Player {
   }
 
   update(dt) {
+    console.log(pixelsToMeters(this.positionZ));
     this.handleInput(dt);
+    this.applyGravity(dt);
     this.applySlopePhysics(dt);
     this.applyBoardPhysics(dt);
     this.applyAirFriction(dt);
@@ -48,6 +67,7 @@ class Player {
 
   handleInput(dt) {
     const { ArrowLeft, ArrowRight } = gameInput.keysDown;
+    const spaceKey = gameInput.keysDownOnce[' '];
     const rotation = 5 * dt;
 
     if (ArrowLeft) {
@@ -70,6 +90,25 @@ class Player {
       this.boardDirection.rotate(boardRotateAngle);
     } else {
       this.bodyAngle *= 0.85;
+    }
+
+    const shouldJump = spaceKey && this.isGrounded();
+
+    if (shouldJump) {
+      this.velocityZ = metersToPixels(4);
+      this.positionZ += 0.1;
+    }
+  }
+
+  applyGravity(dt) {
+    const isFlying = this.positionZ > 0;
+
+    if (isFlying) {
+      this.velocityZ += Math.cos(slopeAngle) * gravity * dt;
+      this.positionZ += this.velocityZ * dt;
+    } else {
+      this.positionZ = 0;
+      this.velocityZ = 0;
     }
   }
 
@@ -120,6 +159,17 @@ class Player {
     this.renderRider();
   }
 
+  renderShadow() {
+    paint.path({
+      points: this.getBoardTipPositions().map(point =>
+        getShadowPosition(point, this.positionZ)
+      ),
+      stroke: SHADOW_COLOR,
+      lineCap: 'round',
+      lineWidth: this.boardWidth
+    });
+  }
+
   renderBoard() {
     paint.path({
       points: this.getBoardTipPositions(),
@@ -153,6 +203,7 @@ new Loop({
     gameInput.clearState();
 
     canvas.width = canvas.width;
+    player.renderShadow();
     player.render();
   }
 });
