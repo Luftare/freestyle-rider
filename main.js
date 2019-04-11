@@ -3,6 +3,14 @@ import Paint from 'paint';
 import Loop from 'loop';
 import SnowParticle from './SnowParticle';
 import GameInput from './GameInput';
+import {
+  renderKicker,
+  renderKickerShadow,
+  getKickerHeightAt,
+  getKickerAngle,
+  pointAlignedWithKicker
+} from './Kicker';
+import { getShadowPosition, SHADOW_COLOR } from './Graphics';
 
 let renderScale = 40;
 
@@ -14,10 +22,6 @@ function pixelsToMeters(pixels) {
   return pixels / renderScale;
 }
 
-function getShadowPosition({ x, y }, z) {
-  return new Vector(x, y).addX(z).addY(z * 0.5);
-}
-
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 const paint = new Paint(canvas);
@@ -25,11 +29,20 @@ const gameInput = new GameInput(canvas);
 const slopeAngle = 20 * (Math.PI / 180);
 const gravity = metersToPixels(-9.81);
 let particles = [];
-const SHADOW_COLOR = 'grey';
+
+const kickers = [
+  {
+    position: { x: 220, y: 200 },
+    width: metersToPixels(4),
+    height: metersToPixels(1),
+    length: metersToPixels(4)
+  }
+];
 
 class Player {
   constructor() {
     this.position = new Vector(canvas.width / 2, 100);
+    this.previousPosition = this.position.clone();
     this.positionZ = metersToPixels(2);
     this.velocity = new Vector(0, -100);
     this.velocityZ = 0;
@@ -40,7 +53,7 @@ class Player {
     this.boardWidth = metersToPixels(0.4);
     this.bodyAngle = 0;
     this.lastBoardAngle = this.boardDirection.angle;
-    this.maxBodyAngle = Math.PI * 0.3;
+    this.maxBodyAngle = Math.PI * 0.4;
     this.weight = 1;
     this.forces = [];
   }
@@ -68,14 +81,30 @@ class Player {
     this.applyBoardPhysics(dt);
     this.applyAirFriction(dt);
     this.applyForces(dt);
+    this.handleKickers(dt);
+    this.emitParticles(dt);
     if (this.position.y < 0) this.position.y = canvas.height;
-    this.emitParticles();
+
+    this.lastBoardAngle = this.boardDirection.angle;
+  }
+
+  getKickerAt({ x, y }, z) {
+    return kickers.find(kicker => {
+      const { position, width, length } = kicker;
+      return (
+        x > position.x &&
+        x < position.x + width &&
+        y > position.y &&
+        y < position.y + length &&
+        getKickerHeightAt(kicker, { x, y }) > z
+      );
+    });
   }
 
   handleInput(dt) {
     const { ArrowLeft, ArrowRight } = gameInput.keysDown;
     const spaceKey = gameInput.keysDownOnce[' '];
-    const rotation = 5 * dt;
+    const rotation = 3 * dt;
     const boardBodyRotateRatio = 0.8;
 
     if (ArrowLeft) {
@@ -104,9 +133,7 @@ class Player {
       const shouldJump = spaceKey;
 
       if (shouldJump) {
-        this.angularVelocity = this.boardDirection.angle - this.lastBoardAngle;
-        this.velocityZ = metersToPixels(4);
-        this.positionZ += 0.1;
+        this.jump();
       }
     } else {
       const bodyCanTurn = Math.abs(this.bodyAngle) < this.maxBodyAngle;
@@ -139,12 +166,24 @@ class Player {
     }
   }
 
-  applyMomentum() {
-    this.lastBoardAngle = this.boardDirection.angle;
+  jump() {
+    this.angularVelocity = this.boardDirection.angle - this.lastBoardAngle;
+    this.velocityZ = metersToPixels(4);
+    this.positionZ += metersToPixels(0.5);
+    const kicker = this.getKickerAt(this.position, this.positionZ);
 
-    if (!this.isGrounded()) {
-      this.boardDirection.rotate(this.angularVelocity);
+    if (kicker) {
+      const heightAtKicker = getKickerHeightAt(kicker, this.position);
+      this.positionZ += heightAtKicker;
     }
+  }
+
+  applyMomentum() {
+    if (this.isGrounded()) {
+      this.angularVelocity *= 0.9;
+    }
+
+    this.boardDirection.rotate(this.angularVelocity);
   }
 
   applyGravity(dt) {
@@ -161,11 +200,14 @@ class Player {
 
   applySlopePhysics() {
     if (!this.isGrounded()) return;
+    const kicker = this.getKickerAt(this.position, this.positionZ);
+
+    const kickerAngle = kicker ? getKickerAngle(kicker) : 0;
 
     const gravityForceMagnitude = gravity * this.weight;
     const gravityForceSlopeComponent = new Vector(
       0,
-      Math.sin(slopeAngle) * gravityForceMagnitude
+      Math.sin(slopeAngle - kickerAngle) * gravityForceMagnitude
     );
     this.forces.push(gravityForceSlopeComponent);
   }
@@ -173,7 +215,7 @@ class Player {
   applyBoardPhysics() {
     if (!this.isGrounded()) return;
 
-    const edgeFrictionFactor = 1.5;
+    const edgeFrictionFactor = 1.8;
 
     const edgeForceMagnitude =
       this.velocity.clone().cross(this.boardDirection) * edgeFrictionFactor;
@@ -193,12 +235,46 @@ class Player {
     this.forces.push(force);
   }
 
+  handleKickers(dt) {
+    const previousKicker = this.getKickerAt(
+      this.previousPosition,
+      this.positionZ
+    );
+    const currentKicker = this.getKickerAt(this.position, this.positionZ);
+
+    const enteredKicker = !previousKicker && currentKicker;
+    const collisionWithKickerSide =
+      enteredKicker &&
+      !pointAlignedWithKicker(currentKicker, this.previousPosition);
+
+    if (collisionWithKickerSide) {
+      this.position = this.previousPosition.clone();
+      this.boardDirection.set(0, -1);
+      this.velocity.alignWith(this.boardDirection);
+      this.angularVelocity = 0;
+      this.bodyAngle = 0;
+      return;
+    }
+
+    const jumpedKicker = !currentKicker && previousKicker;
+    if (jumpedKicker) {
+      const kickerAngle = getKickerAngle(previousKicker);
+
+      const slopeVelocity = this.velocity.length;
+      this.velocity.toLength(Math.cos(kickerAngle) * slopeVelocity);
+      this.positionZ = getKickerHeightAt(previousKicker, this.previousPosition);
+      this.velocityZ = Math.sin(kickerAngle) * slopeVelocity;
+      this.angularVelocity = this.boardDirection.angle - this.lastBoardAngle;
+    }
+  }
+
   applyForces(dt) {
     const totalForce = this.forces.reduce(
       (acc, force) => acc.add(force),
       new Vector()
     );
 
+    this.previousPosition = this.position.clone();
     const acceleration = totalForce.scale(1 / this.weight);
     this.velocity.scaledAdd(dt, acceleration);
     this.position.scaledAdd(dt, this.velocity);
@@ -280,7 +356,9 @@ function render() {
   });
 
   player.renderShadow();
+  kickers.forEach(kicker => renderKickerShadow(kicker, paint));
 
+  kickers.forEach(kicker => renderKicker(kicker, paint));
   particles.forEach(particle => particle.render(paint));
   player.render();
 }

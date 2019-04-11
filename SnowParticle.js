@@ -18,7 +18,7 @@ export default class SnowParticle {
   render(paint) {
     paint.circle({
       position: this.position,
-      radius: this.radius + (1 - this.life) * this.radius * 2,
+      radius: this.radius + (1 - this.life) * this.radius,
       fill: 'white',
       alpha: this.life
     });
