@@ -10,6 +10,7 @@ import {
   getKickerAngle,
   pointAlignedWithKicker
 } from './Kicker';
+import { renderRail, renderRailShadow, isRailBetweenPoints } from './Rail';
 import { getShadowPosition, SHADOW_COLOR } from './Graphics';
 
 let renderScale = 40;
@@ -39,6 +40,14 @@ const kickers = [
   }
 ];
 
+const rails = [
+  {
+    position: { x: 520, y: 400 },
+    height: metersToPixels(0.5),
+    length: metersToPixels(15)
+  }
+];
+
 class Player {
   constructor() {
     this.position = new Vector(canvas.width / 2, 100);
@@ -62,13 +71,13 @@ class Player {
     return this.positionZ <= 0;
   }
 
-  getBoardTipPositions() {
+  getBoardTipPositions(position = this.position) {
     const halfLength = this.boardLength * 0.5;
     const centerToNose = this.boardDirection.clone().toLength(halfLength);
     const centerToTail = centerToNose.clone().mirror();
 
-    const nosePosition = this.position.clone().add(centerToNose);
-    const tailPosition = this.position.clone().add(centerToTail);
+    const nosePosition = position.clone().add(centerToNose);
+    const tailPosition = position.clone().add(centerToTail);
 
     return [nosePosition, tailPosition];
   }
@@ -82,9 +91,9 @@ class Player {
     this.applyAirFriction(dt);
     this.applyForces(dt);
     this.handleKickers(dt);
+    this.handleRails(dt);
     this.emitParticles(dt);
     if (this.position.y < 0) this.position.y = canvas.height;
-
     this.lastBoardAngle = this.boardDirection.angle;
   }
 
@@ -101,50 +110,68 @@ class Player {
     });
   }
 
+  getRailAt(position) {
+    const [nose, tail] = this.getBoardTipPositions(position);
+    return rails.find(rail =>
+      isRailBetweenPoints(rail, nose, tail, this.boardWidth)
+    );
+  }
+
+  isOnRail() {
+    const rail = this.getRailAt(this.position);
+    if (!rail) return false;
+    return this.positionZ <= rail.height;
+  }
+
   handleInput(dt) {
     const { ArrowLeft, ArrowRight } = gameInput.keysDown;
     const spaceKey = gameInput.keysDownOnce[' '];
     const rotation = 3 * dt;
     const boardBodyRotateRatio = 0.8;
 
-    if (ArrowLeft) {
-      this.bodyAngle -= rotation;
-    }
-
-    if (ArrowRight) {
-      this.bodyAngle += rotation;
-    }
-
-    this.bodyAngle = Math.max(
-      -this.maxBodyAngle,
-      Math.min(this.maxBodyAngle, this.bodyAngle)
-    );
-
     const shouldRotateBoard = ArrowRight || ArrowLeft;
 
     if (this.isGrounded()) {
+      if (ArrowLeft) {
+        this.bodyAngle -= rotation;
+      }
+
+      if (ArrowRight) {
+        this.bodyAngle += rotation;
+      }
+
+      this.bodyAngle = Math.max(
+        -this.maxBodyAngle,
+        Math.min(this.maxBodyAngle, this.bodyAngle)
+      );
       if (shouldRotateBoard) {
         const boardRotateAngle = 3 * this.bodyAngle * dt;
         this.boardDirection.rotate(boardRotateAngle);
       } else {
         this.bodyAngle *= 0.85;
       }
-
-      const shouldJump = spaceKey;
-
-      if (shouldJump) {
-        this.jump();
-      }
     } else {
+      if (ArrowRight) {
+        this.bodyAngle -= rotation;
+      }
+
+      if (ArrowLeft) {
+        this.bodyAngle += rotation;
+      }
+
+      this.bodyAngle = Math.max(
+        -this.maxBodyAngle,
+        Math.min(this.maxBodyAngle, this.bodyAngle)
+      );
       const bodyCanTurn = Math.abs(this.bodyAngle) < this.maxBodyAngle;
 
       if (bodyCanTurn) {
         if (ArrowLeft) {
-          this.boardDirection.rotate(rotation * boardBodyRotateRatio);
+          this.boardDirection.rotate(-rotation * boardBodyRotateRatio);
         }
 
         if (ArrowRight) {
-          this.boardDirection.rotate(-rotation * boardBodyRotateRatio);
+          this.boardDirection.rotate(rotation * boardBodyRotateRatio);
         }
       }
 
@@ -164,16 +191,27 @@ class Player {
         }
       }
     }
+
+    const shouldJump = spaceKey && (this.isGrounded() || this.isOnRail());
+
+    if (shouldJump) {
+      this.jump();
+    }
   }
 
   jump() {
-    this.angularVelocity = this.boardDirection.angle - this.lastBoardAngle;
-    this.velocityZ = metersToPixels(4);
-    this.positionZ += metersToPixels(0.5);
+    if (!this.isOnRail()) {
+      this.angularVelocity = this.boardDirection.angle - this.lastBoardAngle;
+    }
+    this.velocityZ = metersToPixels(3);
+    this.positionZ += metersToPixels(0.1);
     const kicker = this.getKickerAt(this.position, this.positionZ);
 
     if (kicker) {
       const heightAtKicker = getKickerHeightAt(kicker, this.position);
+      const kickerAngle = getKickerAngle(kicker);
+      const verticalVelocity = Math.sin(kickerAngle) * this.velocity.length;
+      this.velocityZ += verticalVelocity;
       this.positionZ += heightAtKicker;
     }
   }
@@ -214,6 +252,7 @@ class Player {
 
   applyBoardPhysics() {
     if (!this.isGrounded()) return;
+    if (this.getRailAt(this.position)) return;
 
     const edgeFrictionFactor = 1.8;
 
@@ -249,11 +288,13 @@ class Player {
 
     if (collisionWithKickerSide) {
       this.position = this.previousPosition.clone();
-      this.boardDirection.set(0, -1);
-      this.velocity.alignWith(this.boardDirection);
-      this.angularVelocity = 0;
-      this.bodyAngle = 0;
+      this.velocity.setX(-0.5 * this.velocity.x);
       return;
+    }
+
+    if (enteredKicker) {
+      const kickerAngle = getKickerAngle(currentKicker);
+      this.velocity.scale(Math.cos(kickerAngle));
     }
 
     const jumpedKicker = !currentKicker && previousKicker;
@@ -265,6 +306,32 @@ class Player {
       this.positionZ = getKickerHeightAt(previousKicker, this.previousPosition);
       this.velocityZ = Math.sin(kickerAngle) * slopeVelocity;
       this.angularVelocity = this.boardDirection.angle - this.lastBoardAngle;
+    }
+  }
+
+  handleRails(dt) {
+    const previousRail = this.getRailAt(this.previousPosition, this.positionZ);
+    const currentRail = this.getRailAt(this.position, this.positionZ);
+
+    const enteredRail = !previousRail && currentRail;
+    const collisionWithRailSide =
+      enteredRail && this.positionZ < enteredRail.height;
+
+    if (collisionWithRailSide) {
+      this.position = this.previousPosition.clone();
+      this.velocity.setX(-0.5 * this.velocity.x);
+      return;
+    }
+
+    if (currentRail) {
+      const shouldTouchRail =
+        this.positionZ - currentRail.height < metersToPixels(0.0);
+
+      if (shouldTouchRail) {
+        this.velocityZ = 0;
+        this.positionZ = currentRail.height;
+        this.velocity.setX(0.98 * this.velocity.x);
+      }
     }
   }
 
@@ -283,6 +350,7 @@ class Player {
 
   emitParticles() {
     if (!this.isGrounded()) return;
+    if (this.getRailAt(this.position)) return;
     const [nose, tail] = this.getBoardTipPositions();
 
     [...Array(3)].forEach(() => {
@@ -357,8 +425,10 @@ function render() {
 
   player.renderShadow();
   kickers.forEach(kicker => renderKickerShadow(kicker, paint));
+  rails.forEach(rail => renderRailShadow(rail, paint));
 
   kickers.forEach(kicker => renderKicker(kicker, paint));
+  rails.forEach(rail => renderRail(rail, paint));
   particles.forEach(particle => particle.render(paint));
   player.render();
 }
