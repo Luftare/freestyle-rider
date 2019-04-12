@@ -186,6 +186,13 @@ class Player {
     );
 
     if (shouldRotateBoard) {
+      if (
+        (ArrowLeft && this.angularVelocity > 0) ||
+        (ArrowRight && this.angularVelocity < 0)
+      ) {
+        this.angularVelocity *= 0.9;
+      }
+
       const boardRotateAngle = this.bodyRotationVelocity * this.bodyAngle * dt;
       this.boardDirection.rotate(boardRotateAngle);
     } else {
@@ -245,7 +252,11 @@ class Player {
 
   jump() {
     if (!this.isOnRail()) {
-      this.angularVelocity = this.boardDirection.angle - this.lastBoardAngle;
+      const angleDelta = this.boardDirection.angle - this.lastBoardAngle;
+      this.angularVelocity =
+        Math.abs(angleDelta) > Math.abs(this.angularVelocity)
+          ? angleDelta
+          : this.angularVelocity;
     }
 
     this.velocityZ = metersToPixels(2);
@@ -263,7 +274,7 @@ class Player {
 
   applyMomentum() {
     if (this.isGrounded()) {
-      this.angularVelocity *= 0.9;
+      this.angularVelocity *= 0.99;
     }
 
     this.boardDirection.rotate(this.angularVelocity);
@@ -297,12 +308,12 @@ class Player {
       this.velocity.scale(Math.cos(slopeAngleDelta));
 
       if (newSlopeSteeper) {
-        this.positionZ += metersToPixels(0.01);
-
         if (this.isGrounded()) {
           this.angularVelocity =
             (this.boardDirection.angle - this.lastBoardAngle) * 0.5;
         }
+
+        this.positionZ += metersToPixels(0.01);
       }
     }
 
@@ -330,7 +341,7 @@ class Player {
   }
 
   getEdgeForce() {
-    const edgeFrictionFactor = 1.8;
+    const edgeFrictionFactor = 1.5;
 
     const edgeForceMagnitude =
       this.velocity.clone().cross(this.boardDirection) * edgeFrictionFactor;
