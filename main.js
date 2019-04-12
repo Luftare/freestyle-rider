@@ -19,10 +19,6 @@ function metersToPixels(meters) {
   return meters * renderScale;
 }
 
-function pixelsToMeters(pixels) {
-  return pixels / renderScale;
-}
-
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 const paint = new Paint(canvas);
@@ -60,6 +56,7 @@ class Player {
     this.boardDirection = new Vector(0, -1);
     this.boardLength = metersToPixels(1.6);
     this.boardWidth = metersToPixels(0.4);
+    this.bodyRotationVelocity = 3;
     this.bodyAngle = 0;
     this.lastBoardAngle = this.boardDirection.angle;
     this.maxBodyAngle = Math.PI * 0.4;
@@ -84,17 +81,21 @@ class Player {
 
   update(dt) {
     this.handleInput(dt);
+    this.applyPhysics(dt);
+    this.handleKickers();
+    this.handleRails();
+    this.emitParticles(dt);
+    if (this.position.y < -400) this.position.y = 1500;
+    this.lastBoardAngle = this.boardDirection.angle;
+  }
+
+  applyPhysics(dt) {
     this.applyMomentum(dt);
     this.applyGravity(dt);
     this.applySlopePhysics(dt);
     this.applyBoardPhysics(dt);
     this.applyAirFriction(dt);
     this.applyForces(dt);
-    this.handleKickers(dt);
-    this.handleRails(dt);
-    this.emitParticles(dt);
-    if (this.position.y < 0) this.position.y = canvas.height;
-    this.lastBoardAngle = this.boardDirection.angle;
   }
 
   getKickerAt({ x, y }, z) {
@@ -110,88 +111,23 @@ class Player {
     });
   }
 
-  getRailAt(position) {
+  getRailAt(position, positionZ) {
     const [nose, tail] = this.getBoardTipPositions(position);
-    return rails.find(rail =>
-      isRailBetweenPoints(rail, nose, tail, this.boardWidth)
+    return rails.find(
+      rail =>
+        rail.height >= positionZ &&
+        isRailBetweenPoints(rail, nose, tail, this.boardWidth)
     );
   }
 
   isOnRail() {
-    const rail = this.getRailAt(this.position);
-    if (!rail) return false;
-    return this.positionZ <= rail.height;
+    return this.getRailAt(this.position, this.positionZ);
   }
 
   handleInput(dt) {
-    const { ArrowLeft, ArrowRight } = gameInput.keysDown;
+    this.handleTurning(dt);
+
     const spaceKey = gameInput.keysDownOnce[' '];
-    const rotation = 3 * dt;
-    const boardBodyRotateRatio = 0.8;
-
-    const shouldRotateBoard = ArrowRight || ArrowLeft;
-
-    if (this.isGrounded()) {
-      if (ArrowLeft) {
-        this.bodyAngle -= rotation;
-      }
-
-      if (ArrowRight) {
-        this.bodyAngle += rotation;
-      }
-
-      this.bodyAngle = Math.max(
-        -this.maxBodyAngle,
-        Math.min(this.maxBodyAngle, this.bodyAngle)
-      );
-      if (shouldRotateBoard) {
-        const boardRotateAngle = 3 * this.bodyAngle * dt;
-        this.boardDirection.rotate(boardRotateAngle);
-      } else {
-        this.bodyAngle *= 0.85;
-      }
-    } else {
-      if (ArrowRight) {
-        this.bodyAngle -= rotation;
-      }
-
-      if (ArrowLeft) {
-        this.bodyAngle += rotation;
-      }
-
-      this.bodyAngle = Math.max(
-        -this.maxBodyAngle,
-        Math.min(this.maxBodyAngle, this.bodyAngle)
-      );
-      const bodyCanTurn = Math.abs(this.bodyAngle) < this.maxBodyAngle;
-
-      if (bodyCanTurn) {
-        if (ArrowLeft) {
-          this.boardDirection.rotate(-rotation * boardBodyRotateRatio);
-        }
-
-        if (ArrowRight) {
-          this.boardDirection.rotate(rotation * boardBodyRotateRatio);
-        }
-      }
-
-      const shouldStraightenBody = !ArrowLeft && !ArrowRight;
-
-      if (shouldStraightenBody) {
-        const shouldLerpAngle = Math.abs(this.bodyAngle) > 0.05;
-
-        if (shouldLerpAngle) {
-          const bodyAngleSign = this.bodyAngle < 0 ? -1 : 1;
-          this.bodyAngle -= bodyAngleSign * rotation;
-          this.boardDirection.rotate(
-            bodyAngleSign * rotation * boardBodyRotateRatio
-          );
-        } else {
-          this.bodyAngle = 0;
-        }
-      }
-    }
-
     const shouldJump = spaceKey && (this.isGrounded() || this.isOnRail());
 
     if (shouldJump) {
@@ -199,10 +135,95 @@ class Player {
     }
   }
 
+  handleTurning(dt) {
+    if (this.isGrounded()) {
+      this.handleTurningOnGround(dt);
+    } else {
+      this.handleTurningInAir(dt);
+    }
+  }
+
+  handleTurningOnGround(dt) {
+    const { ArrowLeft, ArrowRight } = gameInput.keysDown;
+
+    const shouldRotateBoard = ArrowRight || ArrowLeft;
+
+    if (ArrowLeft) {
+      this.bodyAngle -= this.bodyRotationVelocity * dt;
+    }
+
+    if (ArrowRight) {
+      this.bodyAngle += this.bodyRotationVelocity * dt;
+    }
+
+    this.bodyAngle = Math.max(
+      -this.maxBodyAngle,
+      Math.min(this.maxBodyAngle, this.bodyAngle)
+    );
+
+    if (shouldRotateBoard) {
+      const boardRotateAngle = this.bodyRotationVelocity * this.bodyAngle * dt;
+      this.boardDirection.rotate(boardRotateAngle);
+    } else {
+      this.bodyAngle *= 0.85;
+    }
+  }
+
+  handleTurningInAir(dt) {
+    const { ArrowLeft, ArrowRight } = gameInput.keysDown;
+    const boardBodyRotateRatio = 0.8;
+
+    if (ArrowRight) {
+      this.bodyAngle -= this.bodyRotationVelocity * dt;
+    }
+
+    if (ArrowLeft) {
+      this.bodyAngle += this.bodyRotationVelocity * dt;
+    }
+
+    this.bodyAngle = Math.max(
+      -this.maxBodyAngle,
+      Math.min(this.maxBodyAngle, this.bodyAngle)
+    );
+
+    const bodyCanTurn = Math.abs(this.bodyAngle) < this.maxBodyAngle;
+
+    if (bodyCanTurn) {
+      if (ArrowLeft) {
+        this.boardDirection.rotate(
+          -this.bodyRotationVelocity * boardBodyRotateRatio * dt
+        );
+      }
+
+      if (ArrowRight) {
+        this.boardDirection.rotate(
+          this.bodyRotationVelocity * boardBodyRotateRatio * dt
+        );
+      }
+    }
+
+    const shouldStraightenBody = !ArrowLeft && !ArrowRight;
+
+    if (shouldStraightenBody) {
+      const shouldLerpAngle = Math.abs(this.bodyAngle) > 0.05;
+
+      if (shouldLerpAngle) {
+        const bodyAngleSign = this.bodyAngle < 0 ? -1 : 1;
+        this.bodyAngle -= bodyAngleSign * this.bodyRotationVelocity * dt;
+        this.boardDirection.rotate(
+          bodyAngleSign * this.bodyRotationVelocity * boardBodyRotateRatio * dt
+        );
+      } else {
+        this.bodyAngle = 0;
+      }
+    }
+  }
+
   jump() {
     if (!this.isOnRail()) {
       this.angularVelocity = this.boardDirection.angle - this.lastBoardAngle;
     }
+
     this.velocityZ = metersToPixels(3);
     this.positionZ += metersToPixels(0.1);
     const kicker = this.getKickerAt(this.position, this.positionZ);
@@ -274,11 +295,12 @@ class Player {
     this.forces.push(force);
   }
 
-  handleKickers(dt) {
+  handleKickers() {
     const previousKicker = this.getKickerAt(
       this.previousPosition,
       this.positionZ
     );
+
     const currentKicker = this.getKickerAt(this.position, this.positionZ);
 
     const enteredKicker = !previousKicker && currentKicker;
@@ -309,7 +331,7 @@ class Player {
     }
   }
 
-  handleRails(dt) {
+  handleRails() {
     const previousRail = this.getRailAt(this.previousPosition, this.positionZ);
     const currentRail = this.getRailAt(this.position, this.positionZ);
 
@@ -350,7 +372,7 @@ class Player {
 
   emitParticles() {
     if (!this.isGrounded()) return;
-    if (this.getRailAt(this.position)) return;
+    if (this.getRailAt(this.position, this.positionZ)) return;
     const [nose, tail] = this.getBoardTipPositions();
 
     [...Array(3)].forEach(() => {

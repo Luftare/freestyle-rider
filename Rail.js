@@ -1,4 +1,5 @@
 import { getShadowPosition, SHADOW_COLOR } from './Graphics';
+import Vector from 'vector';
 
 module.exports = {
   renderRail(rail, paint) {
@@ -7,17 +8,40 @@ module.exports = {
       height: rail.length,
       width: 6,
       fill: 'black',
-      anchor: { x: 0.5, y: 0 }
+      anchor: new Vector(0.5, 0)
     });
   },
 
   renderRailShadow(rail, paint) {
+    const polePositions = [
+      new Vector(rail.position).addY(0.1 * rail.length),
+      new Vector(rail.position).addY(0.9 * rail.length)
+    ];
+
+    paint.path({
+      points: [
+        polePositions[0],
+        getShadowPosition(polePositions[0], rail.height)
+      ],
+      lineWidth: 6,
+      stroke: SHADOW_COLOR
+    });
+
+    paint.path({
+      points: [
+        polePositions[1],
+        getShadowPosition(polePositions[1], rail.height)
+      ],
+      lineWidth: 6,
+      stroke: SHADOW_COLOR
+    });
+
     paint.rect({
       position: getShadowPosition(rail.position, rail.height),
       height: rail.length,
       width: 6,
       fill: SHADOW_COLOR,
-      anchor: { x: 0.5, y: 0 }
+      anchor: new Vector(0.5, 0)
     });
   },
 
