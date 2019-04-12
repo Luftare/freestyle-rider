@@ -11,6 +11,7 @@ import {
   pointAlignedWithKicker
 } from './Kicker';
 import { renderRail, renderRailShadow, isRailBetweenPoints } from './Rail';
+import { renderSlopes, getTotalSlopeLength, getSlopeAt } from './Slope';
 import { getShadowPosition, SHADOW_COLOR } from './Graphics';
 
 let renderScale = 40;
@@ -19,17 +20,21 @@ function metersToPixels(meters) {
   return meters * renderScale;
 }
 
+function toRadians(degrees) {
+  return degrees * (Math.PI / 180);
+}
+
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 const paint = new Paint(canvas);
 const gameInput = new GameInput(canvas);
-const slopeAngle = 20 * (Math.PI / 180);
+//const slopeAngle = toRadians(20);
 const gravity = metersToPixels(-9.81);
 let particles = [];
 
 const kickers = [
   {
-    position: { x: 220, y: 200 },
+    position: { x: -100, y: -metersToPixels(22) },
     width: metersToPixels(4),
     height: metersToPixels(1),
     length: metersToPixels(4)
@@ -38,17 +43,36 @@ const kickers = [
 
 const rails = [
   {
-    position: { x: 520, y: 400 },
+    position: { x: 200, y: -metersToPixels(25) },
     height: metersToPixels(0.5),
     length: metersToPixels(15)
   }
 ];
 
+const slopes = [
+  {
+    angle: toRadians(10),
+    length: metersToPixels(20)
+  },
+  {
+    angle: toRadians(20),
+    length: metersToPixels(20)
+  },
+  {
+    angle: toRadians(15),
+    length: metersToPixels(20)
+  },
+  {
+    angle: toRadians(5),
+    length: metersToPixels(20)
+  }
+];
+
 class Player {
   constructor() {
-    this.position = new Vector(canvas.width / 2, 100);
+    this.position = new Vector(0, 0);
     this.previousPosition = this.position.clone();
-    this.positionZ = metersToPixels(2);
+    this.positionZ = 0;
     this.velocity = new Vector(0, -100);
     this.velocityZ = 0;
     this.moment = 1;
@@ -85,7 +109,8 @@ class Player {
     this.handleKickers();
     this.handleRails();
     this.emitParticles(dt);
-    if (this.position.y < -400) this.position.y = 1500;
+    const slopeLength = getTotalSlopeLength(slopes);
+    if (this.position.y < -slopeLength) this.position.y = 0;
     this.lastBoardAngle = this.boardDirection.angle;
   }
 
@@ -249,6 +274,7 @@ class Player {
     const isFlying = this.positionZ > 0;
 
     if (isFlying) {
+      const slopeAngle = getSlopeAt(this.position, slopes).angle;
       this.velocityZ += Math.cos(slopeAngle) * gravity * dt;
       this.positionZ += this.velocityZ * dt;
     } else {
@@ -264,6 +290,7 @@ class Player {
     const kickerAngle = kicker ? getKickerAngle(kicker) : 0;
 
     const gravityForceMagnitude = gravity * this.weight;
+    const slopeAngle = getSlopeAt(this.position, slopes).angle;
     const gravityForceSlopeComponent = new Vector(
       0,
       Math.sin(slopeAngle - kickerAngle) * gravityForceMagnitude
@@ -437,6 +464,8 @@ function render() {
     -player.position.x + canvas.width / 2,
     -player.position.y + canvas.height / 1.5
   );
+
+  renderSlopes(slopes, paint);
 
   paint.rect({
     position: new Vector(0, canvas.height / 2),
