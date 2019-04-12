@@ -33,7 +33,13 @@ let particles = [];
 
 const kickers = [
   {
-    position: { x: -100, y: -metersToPixels(22) },
+    position: { x: -metersToPixels(2), y: -metersToPixels(22) },
+    width: metersToPixels(4),
+    height: metersToPixels(2),
+    length: metersToPixels(4)
+  },
+  {
+    position: { x: -metersToPixels(2), y: -metersToPixels(68) },
     width: metersToPixels(4),
     height: metersToPixels(1),
     length: metersToPixels(4)
@@ -42,20 +48,24 @@ const kickers = [
 
 const rails = [
   {
-    position: { x: 200, y: -metersToPixels(25) },
-    height: metersToPixels(0.5),
+    position: { x: 0, y: -metersToPixels(85) },
+    height: metersToPixels(1),
     length: metersToPixels(15)
   }
 ];
 
 const slopes = [
   {
-    angle: toRadians(10),
+    angle: toRadians(20),
     length: metersToPixels(23)
   },
   {
-    angle: toRadians(40),
-    length: metersToPixels(20)
+    angle: toRadians(0),
+    length: metersToPixels(5)
+  },
+  {
+    angle: toRadians(30),
+    length: metersToPixels(15)
   },
   {
     angle: toRadians(15),
@@ -63,6 +73,10 @@ const slopes = [
   },
   {
     angle: toRadians(5),
+    length: metersToPixels(22)
+  },
+  {
+    angle: toRadians(25),
     length: metersToPixels(20)
   }
 ];
