@@ -3,16 +3,16 @@ import Vector from 'vector';
 export default class SnowParticle {
   constructor(position) {
     this.position = new Vector(position);
-    this.radius = 3 + Math.random() * 2;
-    this.fadeVelocity = 0.5;
+    this.radius = 5 + Math.random() * 2;
+    this.velocity = new Vector().random(20).scale(Math.random());
+    this.fadeVelocity = 0.3;
     this.life = Math.random();
   }
 
   update(dt) {
     this.life -= this.fadeVelocity * dt;
     this.life = Math.max(this.life, 0);
-    this.position.addX((Math.random() - 0.5) * 2);
-    this.position.addY((Math.random() - 0.5) * 2);
+    this.position.scaledAdd(dt, this.velocity);
   }
 
   render(paint) {

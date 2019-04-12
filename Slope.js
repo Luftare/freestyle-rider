@@ -10,15 +10,23 @@ module.exports = {
       const previousSlopeIndex = Math.max(0, i - 1);
       const previousSlope = slopes[previousSlopeIndex];
       const previousSlopeColor = getAngledSnowColor(previousSlope.angle);
-      // TODO: Apply gradient
-      const color = getAngledSnowColor(slope.angle);
+      const currentSlopeColor = getAngledSnowColor(slope.angle);
+
+      const gradient = paint.ctx.createLinearGradient(
+        0,
+        slope.length - 30,
+        0,
+        slope.length
+      );
+      gradient.addColorStop(0, currentSlopeColor);
+      gradient.addColorStop(1, previousSlopeColor);
 
       paint.rect({
         position: { x: 0, y: offset },
         width: 600,
         height: slope.length,
         anchor: slopeAnchor,
-        fill: color
+        fill: gradient
       });
 
       offset -= slope.length;

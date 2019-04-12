@@ -5,10 +5,10 @@ module.exports = {
   SNOW_COLOR: 'white',
   SNOW_SHADOW_COLOR: 'lightgrey',
   getShadowPosition({ x, y }, z) {
-    return new Vector(x, y).addX(z).addY(z * 0.5);
+    return new Vector(x, y).addX(z * 0.5).addY(z * 0.15);
   },
   getAngledSnowColor(angle) {
-    const colorCode = 255 * (1 - angle / Math.PI / 0.5);
-    return `rgb(${colorCode}, ${colorCode}, ${colorCode})`;
+    const colorCode = Math.min(255, 220 * (1 - angle / Math.PI));
+    return `rgb(${colorCode}, ${colorCode}, ${Math.min(255, colorCode + 5)})`;
   }
 };

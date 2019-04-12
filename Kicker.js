@@ -1,15 +1,19 @@
 import {
   getShadowPosition,
+  getAngledSnowColor,
   SHADOW_COLOR,
   SNOW_COLOR,
   SNOW_SHADOW_COLOR
 } from './Graphics';
 
 module.exports = {
-  renderKicker({ position, width, length }, paint) {
-    const gradient = paint.ctx.createLinearGradient(0, 0, 0, length);
-    gradient.addColorStop(0, SNOW_COLOR);
-    gradient.addColorStop(1, SNOW_SHADOW_COLOR);
+  renderKicker({ position, width, length, height }, slopeAngle, paint) {
+    const slopeColor = getAngledSnowColor(slopeAngle);
+    const kickerAngle = Math.atan(height / length);
+    const kickerColor = getAngledSnowColor(slopeAngle - kickerAngle);
+    const gradient = paint.ctx.createLinearGradient(0, length - 30, 0, length);
+    gradient.addColorStop(0, kickerColor);
+    gradient.addColorStop(1, slopeColor);
 
     paint.rect({
       position: position,
@@ -17,6 +21,14 @@ module.exports = {
       width: width,
       height: length,
       fill: gradient
+    });
+
+    paint.rect({
+      position: position,
+      anchor: { x: 0, y: 0 },
+      width: width,
+      height: 3,
+      fill: 'blue'
     });
   },
 

@@ -28,7 +28,6 @@ const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 const paint = new Paint(canvas);
 const gameInput = new GameInput(canvas);
-//const slopeAngle = toRadians(20);
 const gravity = metersToPixels(-9.81);
 let particles = [];
 
@@ -52,10 +51,10 @@ const rails = [
 const slopes = [
   {
     angle: toRadians(10),
-    length: metersToPixels(20)
+    length: metersToPixels(23)
   },
   {
-    angle: toRadians(20),
+    angle: toRadians(40),
     length: metersToPixels(20)
   },
   {
@@ -249,7 +248,7 @@ class Player {
       this.angularVelocity = this.boardDirection.angle - this.lastBoardAngle;
     }
 
-    this.velocityZ = metersToPixels(3);
+    this.velocityZ = metersToPixels(2);
     this.positionZ += metersToPixels(0.1);
     const kicker = this.getKickerAt(this.position, this.positionZ);
 
@@ -284,17 +283,40 @@ class Player {
   }
 
   applySlopePhysics() {
+    const currentSlope = getSlopeAt(this.position, slopes);
+    const previousSlope = getSlopeAt(this.previousPosition, slopes);
+
+    const enteredNewSlope = currentSlope !== previousSlope;
+
+    if (enteredNewSlope) {
+      const newSlopeSteeper = currentSlope.angle > previousSlope.angle;
+
+      const originalVelocity = this.velocity.length;
+      const slopeAngleDelta = currentSlope.angle - previousSlope.angle;
+      this.velocityZ += Math.sin(slopeAngleDelta) * originalVelocity;
+      this.velocity.scale(Math.cos(slopeAngleDelta));
+
+      if (newSlopeSteeper) {
+        this.positionZ += metersToPixels(0.01);
+
+        if (this.isGrounded()) {
+          this.angularVelocity =
+            (this.boardDirection.angle - this.lastBoardAngle) * 0.5;
+        }
+      }
+    }
+
     if (!this.isGrounded()) return;
     const kicker = this.getKickerAt(this.position, this.positionZ);
-
     const kickerAngle = kicker ? getKickerAngle(kicker) : 0;
 
     const gravityForceMagnitude = gravity * this.weight;
-    const slopeAngle = getSlopeAt(this.position, slopes).angle;
+    const slopeAngle = currentSlope.angle;
     const gravityForceSlopeComponent = new Vector(
       0,
       Math.sin(slopeAngle - kickerAngle) * gravityForceMagnitude
     );
+
     this.forces.push(gravityForceSlopeComponent);
   }
 
@@ -302,17 +324,21 @@ class Player {
     if (!this.isGrounded()) return;
     if (this.getRailAt(this.position)) return;
 
+    const edgeForce = this.getEdgeForce();
+
+    this.forces.push(edgeForce);
+  }
+
+  getEdgeForce() {
     const edgeFrictionFactor = 1.8;
 
     const edgeForceMagnitude =
       this.velocity.clone().cross(this.boardDirection) * edgeFrictionFactor;
 
-    const edgeForce = this.boardDirection
+    return this.boardDirection
       .clone()
       .rotate(Math.PI / 2)
       .scale(edgeForceMagnitude);
-
-    this.forces.push(edgeForce);
   }
 
   applyAirFriction() {
@@ -354,7 +380,8 @@ class Player {
       this.velocity.toLength(Math.cos(kickerAngle) * slopeVelocity);
       this.positionZ = getKickerHeightAt(previousKicker, this.previousPosition);
       this.velocityZ = Math.sin(kickerAngle) * slopeVelocity;
-      this.angularVelocity = this.boardDirection.angle - this.lastBoardAngle;
+      this.angularVelocity =
+        (this.boardDirection.angle - this.lastBoardAngle) * 0.5;
     }
   }
 
@@ -402,7 +429,10 @@ class Player {
     if (this.getRailAt(this.position, this.positionZ)) return;
     const [nose, tail] = this.getBoardTipPositions();
 
-    [...Array(3)].forEach(() => {
+    const edgeForce = this.getEdgeForce();
+    const particleCount = Math.floor(0.8 + edgeForce.length / 100);
+
+    [...Array(particleCount)].forEach(() => {
       const toTail = nose
         .clone()
         .substract(tail)
@@ -478,7 +508,10 @@ function render() {
   kickers.forEach(kicker => renderKickerShadow(kicker, paint));
   rails.forEach(rail => renderRailShadow(rail, paint));
 
-  kickers.forEach(kicker => renderKicker(kicker, paint));
+  kickers.forEach(kicker => {
+    const slope = getSlopeAt({ y: kicker.position.y + kicker.length }, slopes);
+    renderKicker(kicker, slope.angle, paint);
+  });
   rails.forEach(rail => renderRail(rail, paint));
   particles.forEach(particle => particle.render(paint));
   player.render();
