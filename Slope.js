@@ -1,5 +1,6 @@
 import Vector from 'vector';
 import { getAngledSnowColor } from './Graphics';
+import { SLOPE_WIDTH } from './config';
 
 module.exports = {
   renderSlopes(slopes, paint) {
@@ -23,7 +24,7 @@ module.exports = {
 
       paint.rect({
         position: { x: 0, y: offset },
-        width: 600,
+        width: SLOPE_WIDTH,
         height: slope.length,
         anchor: slopeAnchor,
         fill: gradient

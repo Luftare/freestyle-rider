@@ -18,6 +18,7 @@ import {
   metersToPixels,
   sprites
 } from './Graphics';
+import { SLOPE_WIDTH } from './config';
 import gameLevel from './gameLevel';
 
 const DEBUG_GRAPHICS = false;
@@ -43,7 +44,7 @@ class Player {
     this.bodyRotationVelocity = 3;
     this.bodyAngle = 0;
     this.lastBoardAngle = this.boardDirection.angle;
-    this.maxBodyAngle = Math.PI * 0.4;
+    this.maxBodyAngle = Math.PI * 0.7;
     this.weight = 1;
     this.forces = [];
   }
@@ -69,8 +70,8 @@ class Player {
     this.handleKickers();
     this.handleRails();
     this.emitParticles(dt);
-    const slopeLength = getTotalSlopeLength(gameLevel.slopes);
-    if (this.position.y < -slopeLength) this.position.y = 0;
+    this.handleSlopeBoundaries();
+
     this.lastBoardAngle = this.boardDirection.angle;
   }
 
@@ -320,6 +321,31 @@ class Player {
     this.forces.push(force);
   }
 
+  handleSlopeBoundaries() {
+    this.handleSlopeSideBoundaries();
+    this.handleEndOfSlope();
+  }
+
+  handleSlopeSideBoundaries() {
+    if (this.position.x < -SLOPE_WIDTH / 2) {
+      this.position.x = -SLOPE_WIDTH / 2;
+      this.velocity.x = Math.abs(this.velocity.x) * 0.5;
+    }
+
+    if (this.position.x > SLOPE_WIDTH / 2) {
+      this.position.x = SLOPE_WIDTH / 2;
+      this.velocity.x = -Math.abs(this.velocity.x) * 0.5;
+    }
+  }
+
+  handleEndOfSlope() {
+    const slopeLength = getTotalSlopeLength(gameLevel.slopes);
+    if (this.position.y < -slopeLength) {
+      this.position.y = 0;
+      this.velocity.scale(0.8);
+    }
+  }
+
   handleKickers() {
     const previousKicker = this.getKickerAt(
       this.previousPosition,
@@ -378,7 +404,7 @@ class Player {
       if (shouldTouchRail) {
         this.velocityZ = 0;
         this.positionZ = currentRail.height;
-        this.velocity.setX(0.98 * this.velocity.x);
+        this.velocity.setX(0.995 * this.velocity.x);
       }
     }
   }
