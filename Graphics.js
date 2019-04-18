@@ -1,5 +1,7 @@
 import Vector from 'vector';
 
+let renderScale = 40;
+
 module.exports = {
   SHADOW_COLOR: 'grey',
   SNOW_COLOR: 'white',
@@ -10,5 +12,11 @@ module.exports = {
   getAngledSnowColor(angle) {
     const colorCode = Math.min(255, 220 * (1 - angle / Math.PI));
     return `rgb(${colorCode}, ${colorCode}, ${Math.min(255, colorCode + 5)})`;
+  },
+  metersToPixels(meters) {
+    return meters * renderScale;
+  },
+  toRadians(degrees) {
+    return degrees * (Math.PI / 180);
   }
 };

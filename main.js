@@ -12,17 +12,8 @@ import {
 } from './Kicker';
 import { renderRail, renderRailShadow, isRailBetweenPoints } from './Rail';
 import { renderSlopes, getTotalSlopeLength, getSlopeAt } from './Slope';
-import { getShadowPosition, SHADOW_COLOR } from './Graphics';
-
-let renderScale = 40;
-
-function metersToPixels(meters) {
-  return meters * renderScale;
-}
-
-function toRadians(degrees) {
-  return degrees * (Math.PI / 180);
-}
+import { getShadowPosition, SHADOW_COLOR, metersToPixels } from './Graphics';
+import gameLevel from './gameLevel';
 
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
@@ -30,56 +21,6 @@ const paint = new Paint(canvas);
 const gameInput = new GameInput(canvas);
 const gravity = metersToPixels(-9.81);
 let particles = [];
-
-const kickers = [
-  {
-    position: { x: -metersToPixels(2), y: -metersToPixels(22) },
-    width: metersToPixels(4),
-    height: metersToPixels(2),
-    length: metersToPixels(4)
-  },
-  {
-    position: { x: -metersToPixels(2), y: -metersToPixels(68) },
-    width: metersToPixels(4),
-    height: metersToPixels(1),
-    length: metersToPixels(4)
-  }
-];
-
-const rails = [
-  {
-    position: { x: 0, y: -metersToPixels(85) },
-    height: metersToPixels(1),
-    length: metersToPixels(15)
-  }
-];
-
-const slopes = [
-  {
-    angle: toRadians(20),
-    length: metersToPixels(23)
-  },
-  {
-    angle: toRadians(0),
-    length: metersToPixels(5)
-  },
-  {
-    angle: toRadians(30),
-    length: metersToPixels(15)
-  },
-  {
-    angle: toRadians(15),
-    length: metersToPixels(20)
-  },
-  {
-    angle: toRadians(5),
-    length: metersToPixels(22)
-  },
-  {
-    angle: toRadians(25),
-    length: metersToPixels(20)
-  }
-];
 
 class Player {
   constructor() {
@@ -122,7 +63,7 @@ class Player {
     this.handleKickers();
     this.handleRails();
     this.emitParticles(dt);
-    const slopeLength = getTotalSlopeLength(slopes);
+    const slopeLength = getTotalSlopeLength(gameLevel.slopes);
     if (this.position.y < -slopeLength) this.position.y = 0;
     this.lastBoardAngle = this.boardDirection.angle;
   }
@@ -137,7 +78,7 @@ class Player {
   }
 
   getKickerAt({ x, y }, z) {
-    return kickers.find(kicker => {
+    return gameLevel.kickers.find(kicker => {
       const { position, width, length } = kicker;
       return (
         x > position.x &&
@@ -151,7 +92,7 @@ class Player {
 
   getRailAt(position, positionZ) {
     const [nose, tail] = this.getBoardTipPositions(position);
-    return rails.find(
+    return gameLevel.rails.find(
       rail =>
         rail.height >= positionZ &&
         isRailBetweenPoints(rail, nose, tail, this.boardWidth)
@@ -288,7 +229,7 @@ class Player {
 
   applyMomentum() {
     if (this.isGrounded()) {
-      this.angularVelocity *= 0.99;
+      this.angularVelocity *= 0.95;
     }
 
     this.boardDirection.rotate(this.angularVelocity);
@@ -298,7 +239,7 @@ class Player {
     const isFlying = this.positionZ > 0;
 
     if (isFlying) {
-      const slopeAngle = getSlopeAt(this.position, slopes).angle;
+      const slopeAngle = getSlopeAt(this.position, gameLevel.slopes).angle;
       this.velocityZ += Math.cos(slopeAngle) * gravity * dt;
       this.positionZ += this.velocityZ * dt;
     } else {
@@ -308,8 +249,8 @@ class Player {
   }
 
   applySlopePhysics() {
-    const currentSlope = getSlopeAt(this.position, slopes);
-    const previousSlope = getSlopeAt(this.previousPosition, slopes);
+    const currentSlope = getSlopeAt(this.position, gameLevel.slopes);
+    const previousSlope = getSlopeAt(this.previousPosition, gameLevel.slopes);
 
     const enteredNewSlope = currentSlope !== previousSlope;
 
@@ -520,7 +461,7 @@ function render() {
     -player.position.y + canvas.height / 1.5
   );
 
-  renderSlopes(slopes, paint);
+  renderSlopes(gameLevel.slopes, paint);
 
   paint.rect({
     position: new Vector(0, canvas.height / 2),
@@ -530,14 +471,17 @@ function render() {
   });
 
   player.renderShadow();
-  kickers.forEach(kicker => renderKickerShadow(kicker, paint));
-  rails.forEach(rail => renderRailShadow(rail, paint));
+  gameLevel.kickers.forEach(kicker => renderKickerShadow(kicker, paint));
+  gameLevel.rails.forEach(rail => renderRailShadow(rail, paint));
 
-  kickers.forEach(kicker => {
-    const slope = getSlopeAt({ y: kicker.position.y + kicker.length }, slopes);
+  gameLevel.kickers.forEach(kicker => {
+    const slope = getSlopeAt(
+      { y: kicker.position.y + kicker.length },
+      gameLevel.slopes
+    );
     renderKicker(kicker, slope.angle, paint);
   });
-  rails.forEach(rail => renderRail(rail, paint));
+  gameLevel.rails.forEach(rail => renderRail(rail, paint));
   particles.forEach(particle => particle.render(paint));
   player.render();
 }
