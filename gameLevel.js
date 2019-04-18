@@ -25,12 +25,8 @@ const rails = [
 
 const slopes = [
   {
-    angle: toRadians(20),
-    length: metersToPixels(23)
-  },
-  {
-    angle: toRadians(0),
-    length: metersToPixels(5)
+    angle: toRadians(15),
+    length: metersToPixels(28)
   },
   {
     angle: toRadians(30),

@@ -12,9 +12,15 @@ import {
 } from './Kicker';
 import { renderRail, renderRailShadow, isRailBetweenPoints } from './Rail';
 import { renderSlopes, getTotalSlopeLength, getSlopeAt } from './Slope';
-import { getShadowPosition, SHADOW_COLOR, metersToPixels } from './Graphics';
+import {
+  getShadowPosition,
+  SHADOW_COLOR,
+  metersToPixels,
+  sprites
+} from './Graphics';
 import gameLevel from './gameLevel';
 
+const DEBUG_GRAPHICS = false;
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 const paint = new Paint(canvas);
@@ -425,23 +431,59 @@ class Player {
   }
 
   renderBoard() {
-    paint.path({
-      points: this.getBoardTipPositions(),
-      stroke: 'black',
-      lineCap: 'round',
-      lineWidth: this.boardWidth
+    paint.image({
+      image: sprites.boardAndLegs,
+      scale: 0.33,
+      angle: this.boardDirection.angle,
+      position: this.position,
+      anchor: { x: 0.5, y: 0.5 }
     });
+
+    if (DEBUG_GRAPHICS) {
+      paint.path({
+        points: this.getBoardTipPositions(),
+        stroke: 'lime',
+        lineCap: 'round',
+        lineWidth: this.boardWidth
+      });
+    }
   }
 
   renderRider() {
-    paint.rect({
+    paint.image({
+      image: sprites.torso,
+      scale: 0.33,
+      angle: this.boardDirection.angle + this.bodyAngle,
       position: this.position,
-      angle: this.bodyAngle + this.boardDirection.angle,
-      anchor: new Vector(0.5, 0.5),
-      width: metersToPixels(1.1),
-      height: metersToPixels(0.3),
-      fill: 'red'
+      anchor: { x: 0.5, y: 0.5 }
     });
+
+    const towardsDownHillAngle = this.boardDirection.y < 0 ? 0.8 : -0.8;
+
+    const headAngle = this.isGrounded()
+      ? this.boardDirection.angle + this.bodyAngle * 0.5 + towardsDownHillAngle
+      : this.boardDirection.angle +
+        this.bodyAngle * -0.5 +
+        towardsDownHillAngle;
+
+    paint.image({
+      image: sprites.head,
+      scale: 0.33,
+      angle: headAngle,
+      position: this.position,
+      anchor: { x: 0.5, y: 0.5 }
+    });
+
+    if (DEBUG_GRAPHICS) {
+      paint.rect({
+        position: this.position,
+        angle: this.bodyAngle + this.boardDirection.angle,
+        anchor: new Vector(0.5, 0.5),
+        width: metersToPixels(1.1),
+        height: metersToPixels(0.3),
+        fill: 'red'
+      });
+    }
   }
 }
 
