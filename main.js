@@ -2,6 +2,7 @@ import Vector from 'vector';
 import Paint from 'paint';
 import Loop from 'loop';
 import SnowParticle from './SnowParticle';
+import SparkParticle from './SparkParticle';
 import GameInput from './GameInput';
 import {
   renderKicker,
@@ -11,6 +12,7 @@ import {
   pointAlignedWithKicker
 } from './Kicker';
 import { renderRail, renderRailShadow, isRailBetweenPoints } from './Rail';
+import { renderTable, renderTableShadow, pointOnTable } from './Table';
 import { renderSlopes, getTotalSlopeLength, getSlopeAt } from './Slope';
 import {
   getShadowPosition,
@@ -69,6 +71,7 @@ class Player {
     this.applyPhysics(dt);
     this.handleKickers();
     this.handleRails();
+    this.handleTables();
     this.emitParticles(dt);
     this.handleSlopeBoundaries();
 
@@ -97,6 +100,12 @@ class Player {
     });
   }
 
+  getTableAt(position, positionZ) {
+    return gameLevel.tables.find(
+      table => pointOnTable(position, table) && table.height >= positionZ
+    );
+  }
+
   getRailAt(position, positionZ) {
     const [nose, tail] = this.getBoardTipPositions(position);
     return gameLevel.rails.find(
@@ -110,11 +119,16 @@ class Player {
     return this.getRailAt(this.position, this.positionZ);
   }
 
+  isOnTable() {
+    return this.getTableAt(this.position, this.positionZ);
+  }
+
   handleInput(dt) {
     this.handleTurning(dt);
 
     const spaceKey = gameInput.keysDownOnce[' '];
-    const shouldJump = spaceKey && (this.isGrounded() || this.isOnRail());
+    const shouldJump =
+      spaceKey && (this.isGrounded() || this.isOnRail() || this.isOnTable());
 
     if (shouldJump) {
       this.jump();
@@ -409,6 +423,16 @@ class Player {
     }
   }
 
+  handleTables() {
+    const table = this.getTableAt(this.position, this.positionZ);
+
+    if (table) {
+      this.velocityZ = 0;
+      this.positionZ = table.height;
+      this.velocity.setX(0.995 * this.velocity.x);
+    }
+  }
+
   applyForces(dt) {
     const totalForce = this.forces.reduce(
       (acc, force) => acc.add(force),
@@ -423,8 +447,20 @@ class Player {
   }
 
   emitParticles() {
+    const rail = this.getRailAt(this.position, this.positionZ);
+
+    if (rail) {
+      const position = new Vector(rail.position.x, this.position.y);
+      const particleCount = 1;
+
+      [...Array(particleCount)].forEach(() => {
+        particles.push(new SparkParticle(position));
+      });
+
+      return;
+    }
+
     if (!this.isGrounded()) return;
-    if (this.getRailAt(this.position, this.positionZ)) return;
     const [nose, tail] = this.getBoardTipPositions();
 
     const edgeForce = this.getEdgeForce();
@@ -541,6 +577,7 @@ function render() {
   player.renderShadow();
   gameLevel.kickers.forEach(kicker => renderKickerShadow(kicker, paint));
   gameLevel.rails.forEach(rail => renderRailShadow(rail, paint));
+  gameLevel.tables.forEach(table => renderTableShadow(table, paint));
 
   gameLevel.kickers.forEach(kicker => {
     const slope = getSlopeAt(
@@ -550,6 +587,7 @@ function render() {
     renderKicker(kicker, slope.angle, paint);
   });
   gameLevel.rails.forEach(rail => renderRail(rail, paint));
+  gameLevel.tables.forEach(table => renderTable(table, paint));
   particles.forEach(particle => particle.render(paint));
   player.render();
 }
