@@ -22,6 +22,9 @@ import {
 } from './Graphics';
 import { SLOPE_WIDTH } from './config';
 import gameLevel from './gameLevel';
+import audio from './audio';
+
+audio.init();
 
 const DEBUG_GRAPHICS = false;
 const canvas = document.querySelector('canvas');
@@ -36,6 +39,7 @@ class Player {
     this.position = new Vector(0, 0);
     this.previousPosition = this.position.clone();
     this.positionZ = 0;
+    this.previousPositionZ = 0;
     this.velocity = new Vector(0, -100);
     this.velocityZ = 0;
     this.moment = 1;
@@ -76,6 +80,7 @@ class Player {
     this.handleSlopeBoundaries();
 
     this.lastBoardAngle = this.boardDirection.angle;
+    this.previousPositionZ = this.positionZ;
   }
 
   applyPhysics(dt) {
@@ -293,7 +298,10 @@ class Player {
       }
     }
 
-    if (!this.isGrounded()) return;
+    if (!this.isGrounded()) {
+      audio.setVolume('snow', 0);
+      return;
+    }
     const kicker = this.getKickerAt(this.position, this.positionZ);
     const kickerAngle = kicker ? getKickerAngle(kicker) : 0;
 
@@ -308,12 +316,17 @@ class Player {
   }
 
   applyBoardPhysics() {
-    if (!this.isGrounded()) return;
-    if (this.getRailAt(this.position)) return;
+    const onGround = this.isGrounded();
+    const onRail = this.getRailAt(this.position);
+    const onTable = this.getTableAt(this.position);
+    if (onRail || onTable || !onGround) return;
 
     const edgeForce = this.getEdgeForce();
 
     this.forces.push(edgeForce);
+
+    const snowVolume = Math.max(0.01, Math.min(1, edgeForce.length / 500));
+    audio.setVolume('snow', snowVolume);
   }
 
   getEdgeForce() {
@@ -398,17 +411,22 @@ class Player {
   }
 
   handleRails() {
-    const previousRail = this.getRailAt(this.previousPosition, this.positionZ);
+    const previousRail = this.getRailAt(
+      this.previousPosition,
+      this.previousPositionZ
+    );
     const currentRail = this.getRailAt(this.position, this.positionZ);
 
     const enteredRail = !previousRail && currentRail;
-    const collisionWithRailSide =
-      enteredRail && this.positionZ < enteredRail.height;
+    const leftRail = previousRail && !currentRail;
 
-    if (collisionWithRailSide) {
-      this.position = this.previousPosition.clone();
-      this.velocity.setX(-0.5 * this.velocity.x);
-      return;
+    if (enteredRail) {
+      audio.play('rail');
+      audio.setVolume('rail', 0.1);
+    }
+
+    if (leftRail) {
+      audio.stop('rail');
     }
 
     if (currentRail) {
@@ -424,7 +442,23 @@ class Player {
   }
 
   handleTables() {
+    const previousTable = this.getTableAt(
+      this.previousPosition,
+      this.previousPositionZ
+    );
     const table = this.getTableAt(this.position, this.positionZ);
+
+    const enteredTable = table && !previousTable;
+    const leftTable = !table && previousTable;
+
+    if (enteredTable) {
+      audio.play('table');
+      audio.setVolume('table', 0.3);
+    }
+
+    if (leftTable) {
+      audio.stop('table');
+    }
 
     if (table) {
       this.velocityZ = 0;
@@ -560,10 +594,7 @@ function update(dt) {
 
 function render() {
   canvas.width = canvas.width;
-  ctx.translate(
-    -player.position.x + canvas.width / 2,
-    -player.position.y + canvas.height / 1.5
-  );
+  ctx.translate(canvas.width / 2, -player.position.y + canvas.height / 1.5);
 
   renderSlopes(gameLevel.slopes, paint);
 
