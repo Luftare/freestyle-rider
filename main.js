@@ -36,7 +36,7 @@ let particles = [];
 
 class Player {
   constructor() {
-    this.position = new Vector(0, 0);
+    this.position = new Vector(gameLevel.start);
     this.previousPosition = this.position.clone();
     this.positionZ = 0;
     this.previousPositionZ = 0;
@@ -277,6 +277,13 @@ class Player {
   applySlopePhysics() {
     const currentSlope = getSlopeAt(this.position, gameLevel.slopes);
     const previousSlope = getSlopeAt(this.previousPosition, gameLevel.slopes);
+    const didLandFromFlight = this.positionZ <= 0 && this.previousPositionZ > 0;
+
+    if (didLandFromFlight) {
+      const boardHitGroundNoiseVolume = Math.min(1, this.velocityZ / -6000);
+      audio.play('snowLanding');
+      audio.setVolume('snowLanding', boardHitGroundNoiseVolume);
+    }
 
     const enteredNewSlope = currentSlope !== previousSlope;
 
@@ -325,8 +332,9 @@ class Player {
 
     this.forces.push(edgeForce);
 
-    const snowVolume = Math.max(0.01, Math.min(1, edgeForce.length / 500));
-    audio.setVolume('snow', snowVolume);
+    const snowVolume = Math.max(0.05, Math.min(1, edgeForce.length / 500));
+    const normalizedSnowVolume = snowVolume ** 1.5 * 1;
+    audio.setVolume('snow', normalizedSnowVolume);
   }
 
   getEdgeForce() {
@@ -366,10 +374,8 @@ class Player {
   }
 
   handleEndOfSlope() {
-    const slopeLength = getTotalSlopeLength(gameLevel.slopes);
-    if (this.position.y < -slopeLength) {
-      this.position.y = 0;
-      this.velocity.scale(0.8);
+    if (this.position.y < gameLevel.end.y) {
+      this.position.y = gameLevel.start.y;
     }
   }
 
@@ -453,7 +459,7 @@ class Player {
 
     if (enteredTable) {
       audio.play('table');
-      audio.setVolume('table', 0.3);
+      audio.setVolume('table', 0.1);
     }
 
     if (leftTable) {

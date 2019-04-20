@@ -5,6 +5,7 @@ import { SLOPE_WIDTH } from './config';
 module.exports = {
   renderSlopes(slopes, paint) {
     const slopeAnchor = new Vector(0.5, 1);
+    const offsetY = 2;
     let offset = 0;
 
     slopes.forEach((slope, i) => {
@@ -15,9 +16,9 @@ module.exports = {
 
       const gradient = paint.ctx.createLinearGradient(
         0,
-        slope.length - 30,
+        slope.length - 30 + offsetY,
         0,
-        slope.length
+        slope.length + offsetY
       );
       gradient.addColorStop(0, currentSlopeColor);
       gradient.addColorStop(1, previousSlopeColor);
@@ -25,7 +26,7 @@ module.exports = {
       paint.rect({
         position: { x: 0, y: offset },
         width: SLOPE_WIDTH,
-        height: slope.length,
+        height: slope.length + offsetY,
         anchor: slopeAnchor,
         fill: gradient
       });

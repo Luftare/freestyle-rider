@@ -10,6 +10,7 @@ const audio = {
           rail: [0, 3000],
           snow: [4500, 2000],
           clang: [8000, 500],
+          snowLanding: [10000, 1500],
           table: [12000, 3000]
         },
         onload() {
