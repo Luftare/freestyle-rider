@@ -337,7 +337,7 @@ class Player {
     this.forces.push(edgeForce);
 
     const snowVolume = Math.max(0.05, Math.min(1, edgeForce.length / 500));
-    const normalizedSnowVolume = snowVolume ** 1.5 * 1;
+    const normalizedSnowVolume = snowVolume ** 0.9 * 1;
     audio.setVolume('snow', normalizedSnowVolume);
   }
 
@@ -358,6 +358,15 @@ class Player {
     const forceMagnitude = -airFrictionFactor * this.velocity.length ** 2;
     const force = this.velocity.clone().scale(forceMagnitude);
     this.forces.push(force);
+
+    if (audio.sprites) {
+      const totalVelocity = Math.sqrt(
+        this.velocity.length ** 2 + this.velocityZ ** 2
+      );
+      const normalizedVelocity = Math.min(1, totalVelocity / 1500);
+      audio.sprites.rate(normalizedVelocity, audio.playbackIds['wind']);
+      audio.setVolume('wind', normalizedVelocity * 0.2);
+    }
   }
 
   handleSlopeBoundaries() {
@@ -430,6 +439,7 @@ class Player {
     const enteredRail = !previousRail && currentRail;
 
     if (enteredRail) {
+      audio.stop('rail');
       audio.play('rail');
       audio.setVolume('rail', 0.1);
     }
@@ -445,7 +455,6 @@ class Player {
       if (shouldTouchRail) {
         this.velocityZ = 0;
         this.positionZ = currentRail.height;
-        this.velocity.setX(0.995 * this.velocity.x);
       }
     }
   }
@@ -461,6 +470,7 @@ class Player {
     const enteredTable = currentTable && !previousTable;
 
     if (enteredTable) {
+      audio.stop('table');
       audio.play('table');
       audio.setVolume('table', 0.1);
     }
@@ -635,7 +645,7 @@ new Loop({
   animationFrame: true,
   autoStart: true,
   onTick: dtInMs => {
-    const dtInSeconds = dtInMs / 1000;
+    const dtInSeconds = Math.min(0.1, dtInMs / 1000);
     update(dtInSeconds);
     render();
   }

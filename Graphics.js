@@ -11,7 +11,8 @@ function createSprite(src) {
 
 let renderScale = 40;
 
-module.exports = {
+const graphics = {
+  sunRayAngles: new Vector(0.9, 0.1),
   SHADOW_COLOR: 'grey',
   SNOW_COLOR: 'white',
   SNOW_SHADOW_COLOR: 'lightgrey',
@@ -21,7 +22,9 @@ module.exports = {
     head: createSprite(headSrc)
   },
   getShadowPosition({ x, y }, z) {
-    return new Vector(x, y).addX(z * 0.5).addY(z * 0.15);
+    return new Vector(x, y)
+      .addX(z * Math.sin(graphics.sunRayAngles.x))
+      .addY(z * Math.sin(graphics.sunRayAngles.y));
   },
   getAngledSnowColor(angle) {
     const colorCode = Math.min(255, 220 * (1 - angle / Math.PI));
@@ -34,3 +37,5 @@ module.exports = {
     return degrees * (Math.PI / 180);
   }
 };
+
+module.exports = graphics;

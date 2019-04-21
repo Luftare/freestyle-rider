@@ -11,12 +11,16 @@ const audio = {
           snow: [4500, 2000],
           clang: [8000, 500],
           snowLanding: [10000, 1500],
-          table: [12000, 3000]
+          table: [12000, 3000],
+          wind: [17000, 2000]
         },
         onload() {
           audio.playbackIds.snow = audio.sprites.play('snow');
+          audio.playbackIds.wind = audio.sprites.play('wind');
           audio.sprites.loop(true, audio.playbackIds.snow);
           audio.sprites.volume(0.1, audio.playbackIds.snow);
+          audio.sprites.loop(true, audio.playbackIds.wind);
+          audio.sprites.volume(0.1, audio.playbackIds.wind);
         }
       });
       window.removeEventListener('keydown', handler);
