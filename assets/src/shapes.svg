@@ -76,9 +76,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.49497475"
-     inkscape:cx="150.0114"
-     inkscape:cy="1033.9328"
+     inkscape:zoom="0.12374369"
+     inkscape:cx="434.0334"
+     inkscape:cy="1039.7626"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -95,7 +95,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -281,5 +281,33 @@
          id="path5514"
          style="opacity:1;fill:#187494;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     </g>
+    <ellipse
+       style="opacity:1;fill:#222b00;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:6;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4176"
+       cx="-1194.2858"
+       cy="243.79079"
+       rx="457.14285"
+       ry="448.57141" />
+    <ellipse
+       ry="357.76474"
+       rx="400.62192"
+       cy="220.93364"
+       cx="-1257.1428"
+       id="ellipse4178"
+       style="opacity:1;fill:#597000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:4.75619173;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <ellipse
+       style="opacity:1;fill:#293300;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:4.75619173;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="ellipse4182"
+       cx="-1314.2858"
+       cy="220.93362"
+       rx="343.47906"
+       ry="312.05045" />
+    <ellipse
+       style="opacity:1;fill:#597000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:4.75619173;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="ellipse4186"
+       cx="-1385.7144"
+       cy="198.07649"
+       rx="209.19334"
+       ry="196.02522" />
   </g>
 </svg>

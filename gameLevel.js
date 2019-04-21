@@ -47,10 +47,6 @@ const slopes = [
     angle: toRadians(15),
     length: metersToPixels(28)
   },
-  /*  {
-    angle: toRadians(30),
-    length: metersToPixels(15)
-  },*/
   ...[...Array(5)].map((_, i) => ({
     angle: toRadians(50 - i * 5),
     length: metersToPixels(3)

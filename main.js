@@ -106,8 +106,12 @@ class Player {
   }
 
   getTableAt(position, positionZ) {
-    return gameLevel.tables.find(
-      table => pointOnTable(position, table) && table.height >= positionZ
+    const testPoints = [...this.getBoardTipPositions(position), position];
+
+    return gameLevel.tables.find(table =>
+      testPoints.find(
+        point => pointOnTable(point, table) && table.height >= positionZ
+      )
     );
   }
 
@@ -424,14 +428,13 @@ class Player {
     const currentRail = this.getRailAt(this.position, this.positionZ);
 
     const enteredRail = !previousRail && currentRail;
-    const leftRail = previousRail && !currentRail;
 
     if (enteredRail) {
       audio.play('rail');
       audio.setVolume('rail', 0.1);
     }
 
-    if (leftRail) {
+    if (!currentRail && !previousRail) {
       audio.stop('rail');
     }
 
@@ -448,28 +451,27 @@ class Player {
   }
 
   handleTables() {
+    const currentTable = this.getTableAt(this.position, this.positionZ);
+
     const previousTable = this.getTableAt(
       this.previousPosition,
       this.previousPositionZ
     );
-    const table = this.getTableAt(this.position, this.positionZ);
 
-    const enteredTable = table && !previousTable;
-    const leftTable = !table && previousTable;
+    const enteredTable = currentTable && !previousTable;
 
     if (enteredTable) {
       audio.play('table');
       audio.setVolume('table', 0.1);
     }
 
-    if (leftTable) {
+    if (!currentTable && !previousTable) {
       audio.stop('table');
     }
 
-    if (table) {
+    if (currentTable) {
       this.velocityZ = 0;
-      this.positionZ = table.height;
-      this.velocity.setX(0.995 * this.velocity.x);
+      this.positionZ = currentTable.height;
     }
   }
 
