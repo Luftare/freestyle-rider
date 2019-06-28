@@ -9,6 +9,7 @@ module.exports = {
       table.width,
       table.length
     );
+    
     gradient.addColorStop(0, 'sandybrown');
     gradient.addColorStop(1, 'saddlebrown');
 
