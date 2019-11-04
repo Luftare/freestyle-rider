@@ -43,6 +43,18 @@ module.exports = class GameInput {
       }
     });
 
+    window.addEventListener('touchleave', e => {
+      e.preventDefault();
+      for (
+        let touchIndex = 0;
+        touchIndex < e.changedTouches.length;
+        touchIndex++
+      ) {
+        const touch = e.changedTouches[touchIndex];
+        this.handleTouchEnd(touch);
+      }
+    });
+
     window.addEventListener('keydown', ({ key }) => {
       this.handleKeyDown(key);
     });
