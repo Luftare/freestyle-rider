@@ -8,7 +8,7 @@ html, body {
 }
 
 canvas {
-  background-color: #444;
+  background: linear-gradient(142deg, rgba(128,203,1,1) 0%, rgba(70,111,0,1) 72%);
 }
 
 body {
