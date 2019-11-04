@@ -34,6 +34,15 @@ const gameInput = new GameInput(canvas);
 const gravity = metersToPixels(-9.81);
 let particles = [];
 
+function fitGameToScreen() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+
+fitGameToScreen();
+
+window.addEventListener('resize', fitGameToScreen);
+
 class Player {
   constructor() {
     this.position = new Vector(gameLevel.start);
@@ -577,8 +586,8 @@ class Player {
     const headAngle = this.isGrounded()
       ? this.boardDirection.angle + this.bodyAngle * 0.5 + towardsDownHillAngle
       : this.boardDirection.angle +
-        this.bodyAngle * -0.5 +
-        towardsDownHillAngle;
+      this.bodyAngle * -0.5 +
+      towardsDownHillAngle;
 
     paint.image({
       image: sprites.head,

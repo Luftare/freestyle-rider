@@ -1,5 +1,5 @@
 import { Howl } from 'howler';
-import fileSrc from './assets/audio/fx.mp3';
+import fileSrc from '../assets/audio/fx.mp3';
 
 const audio = {
   init() {

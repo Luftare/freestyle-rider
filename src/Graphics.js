@@ -1,7 +1,7 @@
 import Vector from 'vector';
-import boardAndLegsSrc from './assets/images/board-and-legs.png';
-import torsoSrc from './assets/images/torso.png';
-import headSrc from './assets/images/head.png';
+import boardAndLegsSrc from '../assets/images/board-and-legs.png';
+import torsoSrc from '../assets/images/torso.png';
+import headSrc from '../assets/images/head.png';
 
 function createSprite(src) {
   const img = new Image();
@@ -9,7 +9,7 @@ function createSprite(src) {
   return img;
 }
 
-let renderScale = 40;
+export let renderScale = 40;
 
 const graphics = {
   sunRayAngles: new Vector(0.9, 0.1),

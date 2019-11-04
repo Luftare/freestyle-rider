@@ -20,6 +20,7 @@ module.exports = class GameInput {
     this.touches = [];
 
     window.addEventListener('touchstart', e => {
+      e.preventDefault();
       for (
         let touchIndex = 0;
         touchIndex < e.changedTouches.length;
@@ -31,6 +32,7 @@ module.exports = class GameInput {
     });
 
     window.addEventListener('touchend', e => {
+      e.preventDefault();
       for (
         let touchIndex = 0;
         touchIndex < e.changedTouches.length;
