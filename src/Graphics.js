@@ -9,13 +9,18 @@ function createSprite(src) {
   return img;
 }
 
-export let renderScale = 40;
+function isTouchDevice() {
+  return 'ontouchstart' in window;
+}
+
+let renderScale = 40;
 
 const graphics = {
   sunRayAngles: new Vector(0.9, 0.1),
   SHADOW_COLOR: 'grey',
   SNOW_COLOR: 'white',
   SNOW_SHADOW_COLOR: 'lightgrey',
+  isTouchDevice,
   sprites: {
     boardAndLegs: createSprite(boardAndLegsSrc),
     torso: createSprite(torsoSrc),

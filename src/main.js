@@ -18,7 +18,8 @@ import {
   getShadowPosition,
   SHADOW_COLOR,
   metersToPixels,
-  sprites
+  sprites,
+  isTouchDevice
 } from './Graphics';
 import { SLOPE_WIDTH } from './config';
 import gameLevel from './gameLevel';
@@ -39,9 +40,22 @@ function fitGameToScreen() {
   canvas.height = window.innerHeight;
 }
 
+document.getElementById('guide').style.display = isTouchDevice() ? 'grid' : 'none';
+
 fitGameToScreen();
 
 window.addEventListener('resize', fitGameToScreen);
+
+function hideGuide(e) {
+  document.getElementById('guide').style.opacity = 0;
+  setTimeout(() => {
+    document.getElementById('guide').style.display = 'none';
+  }, 500);
+  e.stopPropagation();
+  document.removeEventListener('touchstart', hideGuide);
+}
+
+document.getElementById('guide').addEventListener('touchstart', hideGuide);
 
 class Player {
   constructor() {
