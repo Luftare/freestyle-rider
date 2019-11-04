@@ -27,8 +27,9 @@ const graphics = {
       .addY(z * Math.sin(graphics.sunRayAngles.y));
   },
   getAngledSnowColor(angle) {
-    const colorCode = Math.min(255, 220 * (1 - angle / Math.PI));
-    return `rgb(${colorCode}, ${colorCode}, ${Math.min(255, colorCode + 5)})`;
+    const colorCode = Math.min(255, 230 * (1 - angle / Math.PI));
+    const weightedColor = 255 * Math.pow(colorCode / 255, 0.7);
+    return `rgb(${weightedColor}, ${weightedColor}, ${Math.min(255, weightedColor + 25)})`;
   },
   metersToPixels(meters) {
     return meters * renderScale;
