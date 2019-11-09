@@ -19,7 +19,8 @@ import {
   SHADOW_COLOR,
   metersToPixels,
   sprites,
-  isTouchDevice
+  isTouchDevice,
+  renderScale
 } from './Graphics';
 import { SLOPE_WIDTH } from './config';
 import gameLevel from './gameLevel';
@@ -40,7 +41,9 @@ function fitGameToScreen() {
   canvas.height = window.innerHeight;
 }
 
-document.getElementById('guide').style.display = isTouchDevice() ? 'grid' : 'none';
+document.getElementById('guide').style.display = isTouchDevice()
+  ? 'grid'
+  : 'none';
 
 fitGameToScreen();
 
@@ -540,11 +543,10 @@ class Player {
 
     const edgeForce = this.getEdgeForce();
     const particleCount = Math.floor(0.8 + edgeForce.length / 100);
-
     [...Array(particleCount)].forEach(() => {
       const toTail = nose
         .clone()
-        .substract(tail)
+        .subtract(tail)
         .scale(Math.random());
       const position = tail.clone().add(toTail);
       particles.push(new SnowParticle(position));
@@ -570,7 +572,7 @@ class Player {
   renderBoard() {
     paint.image({
       image: sprites.boardAndLegs,
-      scale: 0.33,
+      scale: (0.33 * renderScale) / 40,
       angle: this.boardDirection.angle,
       position: this.position,
       anchor: { x: 0.5, y: 0.5 }
@@ -589,7 +591,7 @@ class Player {
   renderRider() {
     paint.image({
       image: sprites.torso,
-      scale: 0.33,
+      scale: (0.33 * renderScale) / 40,
       angle: this.boardDirection.angle + this.bodyAngle,
       position: this.position,
       anchor: { x: 0.5, y: 0.5 }
@@ -600,12 +602,12 @@ class Player {
     const headAngle = this.isGrounded()
       ? this.boardDirection.angle + this.bodyAngle * 0.5 + towardsDownHillAngle
       : this.boardDirection.angle +
-      this.bodyAngle * -0.5 +
-      towardsDownHillAngle;
+        this.bodyAngle * -0.5 +
+        towardsDownHillAngle;
 
     paint.image({
       image: sprites.head,
-      scale: 0.33,
+      scale: (0.33 * renderScale) / 40,
       angle: headAngle,
       position: this.position,
       anchor: { x: 0.5, y: 0.5 }

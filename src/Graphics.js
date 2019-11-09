@@ -13,9 +13,10 @@ function isTouchDevice() {
   return 'ontouchstart' in window;
 }
 
-let renderScale = 40;
+let renderScale = 30;
 
 const graphics = {
+  renderScale,
   sunRayAngles: new Vector(0.9, 0.1),
   SHADOW_COLOR: 'grey',
   SNOW_COLOR: 'white',
@@ -34,7 +35,10 @@ const graphics = {
   getAngledSnowColor(angle) {
     const colorCode = Math.min(255, 230 * (1 - angle / Math.PI));
     const weightedColor = 255 * Math.pow(colorCode / 255, 0.7);
-    return `rgb(${weightedColor}, ${weightedColor}, ${Math.min(255, weightedColor + 25)})`;
+    return `rgb(${weightedColor}, ${weightedColor}, ${Math.min(
+      255,
+      weightedColor + 25
+    )})`;
   },
   metersToPixels(meters) {
     return meters * renderScale;
