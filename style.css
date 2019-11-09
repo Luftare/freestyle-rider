@@ -1,14 +1,25 @@
 * {
   outline: none;
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Old versions of Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none;
 }
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
 }
 
 canvas {
-  background: linear-gradient(142deg, rgba(128,203,1,1) 0%, rgba(70,111,0,1) 72%);
+  background: linear-gradient(
+    142deg,
+    rgba(128, 203, 1, 1) 0%,
+    rgba(70, 111, 0, 1) 72%
+  );
 }
 
 body {
@@ -23,13 +34,13 @@ body {
   width: 100vw;
   height: 100vh;
   transition: all 500ms;
+  z-index: 3;
 }
 
 #guide > div {
   text-transform: uppercase;
   font-family: sans-serif;
   opacity: 0.8;
-  display: none;
   align-items: center;
   justify-content: center;
   font-size: 3rem;

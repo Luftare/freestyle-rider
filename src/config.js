@@ -1,3 +1,3 @@
 module.exports = {
-  SLOPE_WIDTH: 500
+  SLOPE_WIDTH: window.innerWidth
 };

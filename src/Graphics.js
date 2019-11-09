@@ -13,7 +13,7 @@ function isTouchDevice() {
   return 'ontouchstart' in window;
 }
 
-let renderScale = 30;
+let renderScale = window.innerHeight / 30;
 
 const graphics = {
   renderScale,
@@ -29,8 +29,8 @@ const graphics = {
   },
   getShadowPosition({ x, y }, z) {
     return new Vector(x, y)
-      .addX(z * Math.sin(graphics.sunRayAngles.x))
-      .addY(z * Math.sin(graphics.sunRayAngles.y));
+      .addX((z * Math.sin(graphics.sunRayAngles.x) * renderScale) / 40)
+      .addY((z * Math.sin(graphics.sunRayAngles.y) * renderScale) / 40);
   },
   getAngledSnowColor(angle) {
     const colorCode = Math.min(255, 230 * (1 - angle / Math.PI));

@@ -62,6 +62,7 @@ document.getElementById('guide').addEventListener('touchstart', hideGuide);
 
 class Player {
   constructor() {
+    this.scale = 0.9;
     this.position = new Vector(gameLevel.start);
     this.previousPosition = this.position.clone();
     this.positionZ = 0;
@@ -71,8 +72,8 @@ class Player {
     this.moment = 1;
     this.angularVelocity = 0;
     this.boardDirection = new Vector(0, -1);
-    this.boardLength = metersToPixels(1.6);
-    this.boardWidth = metersToPixels(0.4);
+    this.boardLength = metersToPixels(1.6) * this.scale;
+    this.boardWidth = metersToPixels(0.4) * this.scale;
     this.bodyRotationVelocity = 3;
     this.bodyAngle = 0;
     this.lastBoardAngle = this.boardDirection.angle;
@@ -310,7 +311,7 @@ class Player {
     const didLandFromFlight = this.positionZ <= 0 && this.previousPositionZ > 0;
 
     if (didLandFromFlight) {
-      const boardHitGroundNoiseVolume = Math.min(1, this.velocityZ / -6000);
+      const boardHitGroundNoiseVolume = Math.min(1, this.velocityZ / -3000);
       audio.play('snowLanding');
       audio.setVolume('snowLanding', boardHitGroundNoiseVolume);
     }
@@ -362,7 +363,7 @@ class Player {
 
     this.forces.push(edgeForce);
 
-    const snowVolume = Math.max(0.05, Math.min(1, edgeForce.length / 500));
+    const snowVolume = Math.max(0.05, Math.min(1, edgeForce.length / 400));
     const normalizedSnowVolume = snowVolume ** 0.9 * 1;
     audio.setVolume('snow', normalizedSnowVolume);
   }
@@ -391,7 +392,7 @@ class Player {
       );
       const normalizedVelocity = Math.min(1, totalVelocity / 1500);
       audio.sprites.rate(normalizedVelocity, audio.playbackIds['wind']);
-      audio.setVolume('wind', normalizedVelocity * 0.2);
+      audio.setVolume('wind', normalizedVelocity * 0.3);
     }
   }
 
@@ -467,7 +468,7 @@ class Player {
     if (enteredRail) {
       audio.stop('rail');
       audio.play('rail');
-      audio.setVolume('rail', 0.1);
+      audio.setVolume('rail', 0.2);
     }
 
     if (!currentRail && !previousRail) {
@@ -498,7 +499,7 @@ class Player {
     if (enteredTable) {
       audio.stop('table');
       audio.play('table');
-      audio.setVolume('table', 0.1);
+      audio.setVolume('table', 0.2);
     }
 
     if (!currentTable && !previousTable) {
@@ -572,7 +573,7 @@ class Player {
   renderBoard() {
     paint.image({
       image: sprites.boardAndLegs,
-      scale: (0.33 * renderScale) / 40,
+      scale: (this.scale * 0.33 * renderScale) / 40,
       angle: this.boardDirection.angle,
       position: this.position,
       anchor: { x: 0.5, y: 0.5 }
@@ -591,7 +592,7 @@ class Player {
   renderRider() {
     paint.image({
       image: sprites.torso,
-      scale: (0.33 * renderScale) / 40,
+      scale: (this.scale * 0.33 * renderScale) / 40,
       angle: this.boardDirection.angle + this.bodyAngle,
       position: this.position,
       anchor: { x: 0.5, y: 0.5 }
@@ -607,7 +608,7 @@ class Player {
 
     paint.image({
       image: sprites.head,
-      scale: (0.33 * renderScale) / 40,
+      scale: (this.scale * 0.33 * renderScale) / 40,
       angle: headAngle,
       position: this.position,
       anchor: { x: 0.5, y: 0.5 }

@@ -1,12 +1,14 @@
-import { getShadowPosition, SHADOW_COLOR } from './Graphics';
+import { getShadowPosition, SHADOW_COLOR, metersToPixels } from './Graphics';
 import Vector from 'vector';
+
+const railWidth = metersToPixels(0.15);
 
 module.exports = {
   renderRail(rail, paint) {
     paint.rect({
       position: rail.position,
       height: rail.length,
-      width: 6,
+      width: railWidth,
       fill: 'black',
       anchor: new Vector(0.5, 0)
     });
@@ -23,7 +25,7 @@ module.exports = {
         polePositions[0],
         getShadowPosition(polePositions[0], rail.height)
       ],
-      lineWidth: 6,
+      lineWidth: railWidth,
       stroke: SHADOW_COLOR
     });
 
@@ -32,14 +34,14 @@ module.exports = {
         polePositions[1],
         getShadowPosition(polePositions[1], rail.height)
       ],
-      lineWidth: 6,
+      lineWidth: railWidth,
       stroke: SHADOW_COLOR
     });
 
     paint.rect({
       position: getShadowPosition(rail.position, rail.height),
       height: rail.length,
-      width: 6,
+      width: railWidth,
       fill: SHADOW_COLOR,
       anchor: new Vector(0.5, 0)
     });

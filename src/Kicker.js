@@ -3,7 +3,8 @@ import {
   getAngledSnowColor,
   SHADOW_COLOR,
   SNOW_COLOR,
-  SNOW_SHADOW_COLOR
+  SNOW_SHADOW_COLOR,
+  metersToPixels
 } from './Graphics';
 
 module.exports = {
@@ -27,8 +28,8 @@ module.exports = {
       position: position,
       anchor: { x: 0, y: 0 },
       width: width,
-      height: 3,
-      fill: 'blue'
+      height: metersToPixels(0.1),
+      fill: 'red'
     });
   },
 
