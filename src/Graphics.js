@@ -13,7 +13,7 @@ function isTouchDevice() {
   return 'ontouchstart' in window;
 }
 
-let renderScale = window.innerHeight / 30;
+let renderScale = window.innerHeight / 25;
 
 const graphics = {
   renderScale,
