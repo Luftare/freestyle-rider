@@ -542,7 +542,7 @@ class Player {
     const [nose, tail] = this.getBoardTipPositions();
 
     const edgeForce = this.getEdgeForce();
-    const particleCount = Math.floor(0.8 + edgeForce.length / 100);
+    const particleCount = Math.floor(0.8 + edgeForce.length / 50);
     [...Array(particleCount)].forEach(() => {
       const toTail = nose
         .clone()
