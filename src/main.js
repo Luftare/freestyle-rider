@@ -54,7 +54,6 @@ function hideGuide(e) {
   setTimeout(() => {
     document.getElementById('guide').style.display = 'none';
   }, 500);
-  e.stopPropagation();
   document.removeEventListener('touchstart', hideGuide);
 }
 
@@ -603,8 +602,8 @@ class Player {
     const headAngle = this.isGrounded()
       ? this.boardDirection.angle + this.bodyAngle * 0.5 + towardsDownHillAngle
       : this.boardDirection.angle +
-        this.bodyAngle * -0.5 +
-        towardsDownHillAngle;
+      this.bodyAngle * -0.5 +
+      towardsDownHillAngle;
 
     paint.image({
       image: sprites.head,
