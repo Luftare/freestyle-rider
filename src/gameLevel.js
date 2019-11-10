@@ -2,8 +2,8 @@ import { metersToPixels, toRadians } from './Graphics';
 
 const kickers = [
   {
-    position: { x: -metersToPixels(2), y: -metersToPixels(42) },
-    width: metersToPixels(4),
+    position: { x: -metersToPixels(3), y: -metersToPixels(42) },
+    width: metersToPixels(6),
     height: metersToPixels(2),
     length: metersToPixels(4)
   },
@@ -16,7 +16,7 @@ const kickers = [
   {
     position: { x: -metersToPixels(4), y: -metersToPixels(135) },
     width: metersToPixels(8),
-    height: metersToPixels(0.7),
+    height: metersToPixels(0.75),
     length: metersToPixels(3)
   }
 ];
@@ -45,12 +45,8 @@ const tables = [
 
 const slopes = [
   {
-    angle: toRadians(30),
-    length: metersToPixels(20)
-  },
-  {
     angle: toRadians(15),
-    length: metersToPixels(28)
+    length: metersToPixels(48)
   },
   ...[...Array(5)].map((_, i) => ({
     angle: toRadians(40 - i * 4),
@@ -70,10 +66,10 @@ const slopes = [
   },
   {
     angle: toRadians(5),
-    length: metersToPixels(25)
+    length: metersToPixels(26)
   },
   {
-    angle: toRadians(25),
+    angle: toRadians(30),
     length: metersToPixels(10)
   },
   {

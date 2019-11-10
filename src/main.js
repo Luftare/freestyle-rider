@@ -41,23 +41,9 @@ function fitGameToScreen() {
   canvas.height = window.innerHeight;
 }
 
-document.getElementById('guide').style.display = isTouchDevice()
-  ? 'grid'
-  : 'none';
-
 fitGameToScreen();
 
 window.addEventListener('resize', fitGameToScreen);
-
-function hideGuide(e) {
-  document.getElementById('guide').style.opacity = 0;
-  setTimeout(() => {
-    document.getElementById('guide').style.display = 'none';
-  }, 500);
-  document.removeEventListener('touchstart', hideGuide);
-}
-
-document.getElementById('guide').addEventListener('touchstart', hideGuide);
 
 class Player {
   constructor() {
@@ -66,7 +52,7 @@ class Player {
     this.previousPosition = this.position.clone();
     this.positionZ = 0;
     this.previousPositionZ = 0;
-    this.velocity = new Vector(0, -100);
+    this.velocity = new Vector(0, metersToPixels(-100 / 40));
     this.velocityZ = 0;
     this.moment = 1;
     this.angularVelocity = 0;
@@ -380,7 +366,7 @@ class Player {
   }
 
   applyAirFriction() {
-    const airFrictionFactor = 0.0000005;
+    const airFrictionFactor = 0.0000015;
     const forceMagnitude = -airFrictionFactor * this.velocity.length ** 2;
     const force = this.velocity.clone().scale(forceMagnitude);
     this.forces.push(force);
@@ -463,6 +449,8 @@ class Player {
     const currentRail = this.getRailAt(this.position, this.positionZ);
 
     const enteredRail = !previousRail && currentRail;
+
+
 
     if (enteredRail) {
       audio.stop('rail');
@@ -637,7 +625,7 @@ function update(dt) {
 
 function render() {
   canvas.width = canvas.width;
-  ctx.translate(canvas.width / 2, -player.position.y + canvas.height / 1.5);
+  ctx.translate(canvas.width / 2, -player.position.y + canvas.height / 1.3);
 
   renderSlopes(gameLevel.slopes, paint);
 
