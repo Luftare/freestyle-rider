@@ -33,12 +33,11 @@ const graphics = {
       .addY((z * Math.sin(graphics.sunRayAngles.y) * renderScale) / 40);
   },
   getAngledSnowColor(angle) {
-    const colorCode = Math.min(255, 230 * (1 - angle / Math.PI));
-    const weightedColor = 255 * Math.pow(colorCode / 255, 0.7);
-    return `rgb(${weightedColor}, ${weightedColor}, ${Math.min(
-      255,
-      weightedColor + 25
-    )})`;
+    const intensity = Math.min(1, (1 - angle / Math.PI));
+    const r = 255 * Math.pow(intensity, 1.4);
+    const g = 255 * Math.pow(intensity, 1.5);
+    const b = 255 * Math.pow(intensity, 1);
+    return `rgb(${r}, ${g}, ${b})`;
   },
   metersToPixels(meters) {
     return meters * renderScale;
