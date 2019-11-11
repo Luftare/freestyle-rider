@@ -1,5 +1,5 @@
 import Vector from 'vector';
-import { getAngledSnowColor } from './Graphics';
+import { getAngledSnowColor, metersToPixels } from './Graphics';
 import { SLOPE_WIDTH } from './config';
 
 module.exports = {
@@ -16,7 +16,7 @@ module.exports = {
 
       const gradient = paint.ctx.createLinearGradient(
         0,
-        slope.length - 30 + offsetY,
+        slope.length - metersToPixels(0.7) + offsetY,
         0,
         slope.length + offsetY
       );
