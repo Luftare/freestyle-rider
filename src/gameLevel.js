@@ -2,14 +2,14 @@ import { metersToPixels, toRadians } from './Graphics';
 
 const kickers = [
   {
-    position: { x: -metersToPixels(3), y: -metersToPixels(42) },
+    position: { x: -metersToPixels(3), y: -metersToPixels(40) },
     width: metersToPixels(6),
     height: metersToPixels(2),
     length: metersToPixels(4)
   },
   {
-    position: { x: -metersToPixels(2), y: -metersToPixels(88) },
-    width: metersToPixels(4),
+    position: { x: -metersToPixels(3), y: -metersToPixels(88) },
+    width: metersToPixels(6),
     height: metersToPixels(0.6),
     length: metersToPixels(2.5)
   },
@@ -23,9 +23,9 @@ const kickers = [
 
 const rails = [
   {
-    position: { x: 0, y: -metersToPixels(105) },
+    position: { x: 0, y: -metersToPixels(107) },
     height: metersToPixels(1),
-    length: metersToPixels(15)
+    length: metersToPixels(17)
   },
   {
     position: { x: metersToPixels(3), y: -metersToPixels(144) },
@@ -58,11 +58,11 @@ const slopes = [
   },
   {
     angle: toRadians(5),
-    length: metersToPixels(22)
+    length: metersToPixels(14)
   },
   {
     angle: toRadians(25),
-    length: metersToPixels(15)
+    length: metersToPixels(23)
   },
   {
     angle: toRadians(5),

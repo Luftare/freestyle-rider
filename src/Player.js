@@ -31,7 +31,7 @@ export default class Player {
     this.previousPosition = this.position.clone();
     this.positionZ = 0;
     this.previousPositionZ = 0;
-    this.velocity = new Vector(0, metersToPixels(-100 / 40));
+    this.velocity = new Vector(0, metersToPixels(-7));
     this.velocityZ = 0;
     this.moment = 1;
     this.angularVelocity = 0;
@@ -61,23 +61,23 @@ export default class Player {
     return [nosePosition, tailPosition];
   }
 
-  update(dt, gameState) {
-    this.handleInput(dt, gameState);
-    this.applyPhysics(dt);
+  update(dt, gameContext) {
+    this.handleInput(dt, gameContext);
+    this.applyPhysics(dt, gameContext);
     this.handleKickers();
     this.handleRails();
     this.handleTables();
-    this.emitParticles(dt, gameState);
+    this.emitParticles(dt, gameContext);
     this.handleSlopeBoundaries();
 
     this.lastBoardAngle = this.boardDirection.angle;
     this.previousPositionZ = this.positionZ;
   }
 
-  applyPhysics(dt) {
+  applyPhysics(dt, gameContext) {
     this.applyMomentum(dt);
     this.applyGravity(dt);
-    this.applySlopePhysics(dt);
+    this.applySlopePhysics(dt, gameContext);
     this.applyBoardPhysics(dt);
     this.applyAirFriction(dt);
     this.applyForces(dt);
@@ -269,15 +269,17 @@ export default class Player {
     }
   }
 
-  applySlopePhysics() {
+  applySlopePhysics(dt, gameContext) {
     const currentSlope = getSlopeAt(this.position, gameLevel.slopes);
     const previousSlope = getSlopeAt(this.previousPosition, gameLevel.slopes);
     const didLandFromFlight = this.positionZ <= 0 && this.previousPositionZ > 0;
 
     if (didLandFromFlight) {
-      const boardHitGroundNoiseVolume = Math.min(1, this.velocityZ / -3000);
+      const landingImpactFactor = this.getEdgeForce().length * 0.003 + Math.abs(this.velocityZ) * 0.005;
+      const boardHitGroundNoiseVolume = Math.min(1, landingImpactFactor * 0.1);
       audio.play('snowLanding');
       audio.setVolume('snowLanding', boardHitGroundNoiseVolume);
+      gameContext.fx.shake(landingImpactFactor);
     }
 
     const enteredNewSlope = currentSlope !== previousSlope;
@@ -491,7 +493,7 @@ export default class Player {
     this.forces = [];
   }
 
-  emitParticles(dt, gameState) {
+  emitParticles(dt, gameContext) {
     const rail = this.getRailAt(this.position, this.positionZ);
 
     if (rail) {
@@ -499,7 +501,7 @@ export default class Player {
       const particleCount = 1;
 
       [...Array(particleCount)].forEach(() => {
-        gameState.particles.push(new SparkParticle(position));
+        gameContext.particles.push(new SparkParticle(position));
       });
 
       return;
@@ -516,7 +518,7 @@ export default class Player {
         .subtract(tail)
         .scale(Math.random());
       const position = tail.clone().add(toTail);
-      gameState.particles.push(new SnowParticle(position));
+      gameContext.particles.push(new SnowParticle(position));
     });
   }
 
