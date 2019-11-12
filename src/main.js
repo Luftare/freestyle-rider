@@ -1,11 +1,9 @@
+import { debounce } from 'lodash';
 import Vector from 'vector';
 import Paint from 'paint';
 import Loop from 'loop';
 import GameInput from './GameInput';
-import {
-  renderKicker,
-  renderKickerShadow,
-} from './Kicker';
+import { renderKicker, renderKickerShadow } from './Kicker';
 import { renderRail, renderRailShadow } from './Rail';
 import { renderTable, renderTableShadow } from './Table';
 import { renderSlopes, getSlopeAt } from './Slope';
@@ -20,10 +18,11 @@ const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 const paint = new Paint(canvas);
 
-function fitGameToScreen() {
+const fitGameToScreen = debounce(() => {
+  canvas.style.display = 'block';
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-}
+}, 500);
 
 fitGameToScreen();
 
@@ -39,7 +38,9 @@ const gameContext = {
 function update(dt) {
   player.update(dt, gameContext);
   gameContext.particles.forEach(particle => particle.update(dt));
-  gameContext.particles = gameContext.particles.filter(particle => particle.life > 0);
+  gameContext.particles = gameContext.particles.filter(
+    particle => particle.life > 0
+  );
   gameContext.input.clearState();
 }
 
@@ -54,7 +55,7 @@ function render() {
     position: new Vector(0, canvas.height / 2),
     width: canvas.width,
     height: 50,
-    fill: 'lightblue'
+    fill: 'lightblue',
   });
 
   player.renderShadow(paint);
@@ -82,5 +83,5 @@ new Loop({
     const dtInSeconds = Math.min(0.1, dtInMs / 1000);
     update(dtInSeconds);
     render();
-  }
+  },
 });

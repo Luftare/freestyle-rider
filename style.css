@@ -17,6 +17,7 @@ body {
 
 canvas {
   background: #444;
+  display: none;
 }
 
 body {

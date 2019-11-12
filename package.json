@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "howler": "^2.1.1",
+    "lodash": "^4.17.15",
     "loop": "github:Luftare/loop",
     "paint": "github:Luftare/paint",
     "vector": "github:Luftare/Vector"
