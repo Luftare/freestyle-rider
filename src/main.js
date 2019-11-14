@@ -17,11 +17,20 @@ audio.init();
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 const paint = new Paint(canvas);
+
+const handleEnterKey = e => {
+  if (e.key === 'Enter') {
+    startGame();
+  }
+};
+
 const startGameButton = document.getElementById('start-game');
 startGameButton.addEventListener('click', startGame);
 startGameButton.addEventListener('touchstart', startGame);
+window.addEventListener('keydown', handleEnterKey);
 
 function startGame() {
+  window.removeEventListener('keydown', handleEnterKey);
   document.getElementById('welcome-view').style.display = 'none';
   fitGameToScreen();
   window.addEventListener('resize', debounce(fitGameToScreen, 500));

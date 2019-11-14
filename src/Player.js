@@ -41,10 +41,14 @@ export default class Player {
     this.boardWidth = metersToPixels(0.4) * this.scale;
     this.bodyRotationVelocity = 3;
     this.bodyAngle = 0;
-    this.lastBoardAngle = this.boardDirection.angle;
+    this.lastBoardDirection = this.boardDirection.clone();
     this.maxBodyAngle = Math.PI * 0.7;
     this.weight = mass(80);
     this.forces = [];
+  }
+
+  getAngularDelta() {
+    return this.lastBoardDirection.angleBetweenSigned(this.boardDirection);
   }
 
   isGrounded() {
@@ -71,7 +75,7 @@ export default class Player {
     this.emitParticles(dt, gameContext);
     this.handleSlopeBoundaries();
 
-    this.lastBoardAngle = this.boardDirection.angle;
+    this.lastBoardDirection.set(this.boardDirection);
     this.previousPositionZ = this.positionZ;
   }
 
@@ -229,7 +233,8 @@ export default class Player {
 
   jump() {
     if (!this.isOnRail()) {
-      const angleDelta = this.boardDirection.angle - this.lastBoardAngle;
+      const angleDelta = this.getAngularDelta();
+
       this.angularVelocity =
         Math.abs(angleDelta) > Math.abs(this.angularVelocity)
           ? angleDelta
@@ -300,8 +305,7 @@ export default class Player {
 
       if (newSlopeSteeper) {
         if (this.isGrounded()) {
-          this.angularVelocity =
-            (this.boardDirection.angle - this.lastBoardAngle) * 0.5;
+          this.angularVelocity = this.getAngularDelta() * 0.5;
         }
 
         this.positionZ += metersToPixels(0.01);
@@ -426,8 +430,7 @@ export default class Player {
       this.velocity.toLength(Math.cos(kickerAngle) * slopeVelocity);
       this.positionZ = getKickerHeightAt(previousKicker, this.previousPosition);
       this.velocityZ = Math.sin(kickerAngle) * slopeVelocity;
-      this.angularVelocity =
-        (this.boardDirection.angle - this.lastBoardAngle) * 0.5;
+      this.angularVelocity = this.getAngularDelta() * 0.5;
     }
   }
 
