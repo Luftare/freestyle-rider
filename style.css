@@ -81,7 +81,7 @@ body {
 
 #welcome-view h1 {
   color: white;
-  font-size: 3rem;
+  font-size: 2.5rem;
   margin: 0;
 }
 
@@ -93,4 +93,40 @@ body {
   background: none;
   border: solid navy 0.2rem;
   border-radius: 1rem;
+}
+
+#messages {
+  position: absolute;
+  z-index: 10;
+  top: 5vh;
+  left: 50vw;
+}
+
+@keyframes bounce {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0, 0);
+  }
+  10% {
+    transform: translate(-50%, -50%) scale(1.2, 1.4);
+  }
+  25%,
+  70% {
+    transform: translate(-50%, -50%) scale(1, 1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -200%) scale(0, 0);
+    opacity: 0;
+  }
+}
+
+.message {
+  font-weight: 400;
+  opacity: 0;
+  font-size: 3rem;
+  color: orange;
+  text-shadow: 2px 2px 2px black;
+  animation-name: bounce;
+  animation-duration: 1.5s;
 }

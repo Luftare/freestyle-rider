@@ -17,6 +17,8 @@ import {
   mass,
   sprites,
   renderScale,
+  radToDeg,
+  showMessage,
 } from './Graphics';
 import gameLevel from './gameLevel';
 import audio from './audio';
@@ -45,6 +47,7 @@ export default class Player {
     this.maxBodyAngle = Math.PI * 0.7;
     this.weight = mass(80);
     this.forces = [];
+    this.jumpRotation = 0;
   }
 
   getAngularDelta() {
@@ -77,7 +80,51 @@ export default class Player {
     this.handleTables();
     this.emitParticles(dt, gameContext);
     this.handleSlopeBoundaries();
+    this.handleTrickNames();
+    this.saveCurrentState();
+  }
 
+  handleTrickNames() {
+    const previouslyGrounded = this.previousPositionZ <= 0;
+    const currentlyGrounded = this.positionZ <= 0;
+    const didJump = previouslyGrounded && !currentlyGrounded;
+    const didLand = !previouslyGrounded && currentlyGrounded;
+
+    if (didJump) {
+      let angle = this.velocity.angleBetweenSigned(this.boardDirection);
+      if (Math.abs(angle) > Math.PI / 2) {
+        angle += angle < 0 ? Math.PI : -Math.PI; // Handle switch stance
+      }
+      this.jumpRotation = angle; // Include rotation on ground
+    }
+
+    if (!currentlyGrounded && !didJump) {
+      this.jumpRotation += this.getAngularDelta();
+    }
+
+    if (didLand) {
+      const degrees = Math.abs(radToDeg(this.jumpRotation));
+      const adjustedDegrees = degrees + 20; // Interpret trick upwards
+      const normalizedDegrees = Math.round(adjustedDegrees / 180) * 180;
+
+      let currentAngle = this.velocity.angleBetweenSigned(this.boardDirection);
+      if (Math.abs(currentAngle) > Math.PI / 2) {
+        currentAngle += currentAngle < 0 ? Math.PI : -Math.PI; // Handle switch stance
+      }
+      const landingBoardDegrees = Math.abs(radToDeg(currentAngle));
+
+      let color = '#42f59b';
+      if (landingBoardDegrees > 10) color = '#dee340';
+      if (landingBoardDegrees > 25) color = '#e38c40';
+      if (landingBoardDegrees > 40) color = '#e34040';
+
+      if (normalizedDegrees > 0) {
+        showMessage(normalizedDegrees + '°', color);
+      }
+    }
+  }
+
+  saveCurrentState() {
     this.lastBoardDirection.set(this.boardDirection);
     this.previousPositionZ = this.positionZ;
   }

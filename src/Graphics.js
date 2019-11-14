@@ -13,11 +13,14 @@ function isTouchDevice() {
   return 'ontouchstart' in window;
 }
 
+const messagesContainer = document.getElementById('messages');
+let messageTimeoutId = 0;
+
 let renderScale = window.innerHeight / 25;
 
 const graphics = {
   renderScale,
-  sunRayAngles: new Vector(0.9, 0.1),
+  sunRayAngles: new Vector(0.9, 0.3),
   SHADOW_COLOR: 'grey',
   SNOW_COLOR: 'white',
   SNOW_SHADOW_COLOR: 'lightgrey',
@@ -26,6 +29,23 @@ const graphics = {
     boardAndLegs: createSprite(boardAndLegsSrc),
     torso: createSprite(torsoSrc),
     head: createSprite(headSrc),
+  },
+  showMessage(text, color) {
+    const element = document.createElement('div');
+    element.classList = 'message';
+    element.innerHTML = text;
+    element.style.color = color;
+
+    clearTimeout(messageTimeoutId);
+    messagesContainer.innerHTML = '';
+    messagesContainer.appendChild(element);
+
+    messageTimeoutId = setTimeout(() => {
+      messagesContainer.removeChild(element);
+    }, 2000);
+  },
+  radToDeg(rad) {
+    return (rad * 180) / Math.PI;
   },
   getShadowPosition({ x, y }, z) {
     return new Vector(x, y)
