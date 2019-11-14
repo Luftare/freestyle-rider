@@ -25,7 +25,7 @@ const graphics = {
   sprites: {
     boardAndLegs: createSprite(boardAndLegsSrc),
     torso: createSprite(torsoSrc),
-    head: createSprite(headSrc)
+    head: createSprite(headSrc),
   },
   getShadowPosition({ x, y }, z) {
     return new Vector(x, y)
@@ -33,18 +33,24 @@ const graphics = {
       .addY((z * Math.sin(graphics.sunRayAngles.y) * renderScale) / 40);
   },
   getAngledSnowColor(angle) {
-    const intensity = Math.min(1, (1 - angle / Math.PI));
-    const r = 255 * Math.pow(intensity, 1.4);
-    const g = 255 * Math.pow(intensity, 1.5);
-    const b = 255 * Math.pow(intensity, 1);
+    const intensity = Math.min(1, 1 - angle / Math.PI);
+    const r = 255 * Math.pow(intensity, 0.6);
+    const g = 255 * Math.pow(intensity, 0.6);
+    const b = 255 * Math.pow(intensity, 0.3);
     return `rgb(${r}, ${g}, ${b})`;
   },
   metersToPixels(meters) {
     return meters * renderScale;
   },
+  pixelsToMeters(pixels) {
+    return pixels / renderScale;
+  },
   toRadians(degrees) {
     return degrees * (Math.PI / 180);
-  }
+  },
+  mass(kilograms) {
+    return kilograms * 0.0005 * renderScale;
+  },
 };
 
 module.exports = graphics;

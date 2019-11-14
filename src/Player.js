@@ -4,7 +4,7 @@ import SparkParticle from './SparkParticle';
 import {
   getKickerHeightAt,
   getKickerAngle,
-  pointAlignedWithKicker
+  pointAlignedWithKicker,
 } from './Kicker';
 import { isRailBetweenPoints } from './Rail';
 import { pointOnTable } from './Table';
@@ -13,8 +13,10 @@ import {
   getShadowPosition,
   SHADOW_COLOR,
   metersToPixels,
+  pixelsToMeters,
+  mass,
   sprites,
-  renderScale
+  renderScale,
 } from './Graphics';
 import { SLOPE_WIDTH } from './config';
 import gameLevel from './gameLevel';
@@ -42,7 +44,7 @@ export default class Player {
     this.bodyAngle = 0;
     this.lastBoardAngle = this.boardDirection.angle;
     this.maxBodyAngle = Math.PI * 0.7;
-    this.weight = 1;
+    this.weight = mass(80);
     this.forces = [];
   }
 
@@ -275,7 +277,8 @@ export default class Player {
     const didLandFromFlight = this.positionZ <= 0 && this.previousPositionZ > 0;
 
     if (didLandFromFlight) {
-      const landingImpactFactor = this.getEdgeForce().length * 0.003 + Math.abs(this.velocityZ) * 0.005;
+      const landingImpactFactor =
+        this.getEdgeForce().length * 0.003 + Math.abs(this.velocityZ) * 0.005;
       const boardHitGroundNoiseVolume = Math.min(1, landingImpactFactor * 0.1);
       audio.play('snowLanding');
       audio.setVolume('snowLanding', boardHitGroundNoiseVolume);
@@ -315,7 +318,6 @@ export default class Player {
       0,
       Math.sin(slopeAngle - kickerAngle) * gravityForceMagnitude
     );
-
     this.forces.push(gravityForceSlopeComponent);
   }
 
@@ -431,8 +433,6 @@ export default class Player {
 
     const enteredRail = !previousRail && currentRail;
 
-
-
     if (enteredRail) {
       audio.stop('rail');
       audio.play('rail');
@@ -534,7 +534,7 @@ export default class Player {
       ),
       stroke: SHADOW_COLOR,
       lineCap: 'round',
-      lineWidth: this.boardWidth
+      lineWidth: this.boardWidth,
     });
   }
 
@@ -544,7 +544,7 @@ export default class Player {
       scale: (this.scale * 0.33 * renderScale) / 40,
       angle: this.boardDirection.angle,
       position: this.position,
-      anchor: { x: 0.5, y: 0.5 }
+      anchor: { x: 0.5, y: 0.5 },
     });
 
     if (DEBUG_GRAPHICS) {
@@ -552,7 +552,7 @@ export default class Player {
         points: this.getBoardTipPositions(),
         stroke: 'lime',
         lineCap: 'round',
-        lineWidth: this.boardWidth
+        lineWidth: this.boardWidth,
       });
     }
   }
@@ -563,7 +563,7 @@ export default class Player {
       scale: (this.scale * 0.33 * renderScale) / 40,
       angle: this.boardDirection.angle + this.bodyAngle,
       position: this.position,
-      anchor: { x: 0.5, y: 0.5 }
+      anchor: { x: 0.5, y: 0.5 },
     });
 
     const towardsDownHillAngle = this.boardDirection.y < 0 ? 0.8 : -0.8;
@@ -571,15 +571,15 @@ export default class Player {
     const headAngle = this.isGrounded()
       ? this.boardDirection.angle + this.bodyAngle * 0.5 + towardsDownHillAngle
       : this.boardDirection.angle +
-      this.bodyAngle * -0.5 +
-      towardsDownHillAngle;
+        this.bodyAngle * -0.5 +
+        towardsDownHillAngle;
 
     paint.image({
       image: sprites.head,
       scale: (this.scale * 0.33 * renderScale) / 40,
       angle: headAngle,
       position: this.position,
-      anchor: { x: 0.5, y: 0.5 }
+      anchor: { x: 0.5, y: 0.5 },
     });
 
     if (DEBUG_GRAPHICS) {
@@ -589,7 +589,7 @@ export default class Player {
         anchor: new Vector(0.5, 0.5),
         width: metersToPixels(1.1),
         height: metersToPixels(0.3),
-        fill: 'red'
+        fill: 'red',
       });
     }
   }
