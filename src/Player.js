@@ -55,9 +55,12 @@ export default class Player {
     return this.positionZ <= 0;
   }
 
-  getBoardTipPositions(position = this.position) {
+  getBoardTipPositions(
+    position = this.position,
+    direction = this.boardDirection
+  ) {
     const halfLength = this.boardLength * 0.5;
-    const centerToNose = this.boardDirection.clone().toLength(halfLength);
+    const centerToNose = direction.clone().toLength(halfLength);
     const centerToTail = centerToNose.clone().mirror();
 
     const nosePosition = position.clone().add(centerToNose);
@@ -101,8 +104,15 @@ export default class Player {
     });
   }
 
-  getTableAt(position, positionZ) {
-    const testPoints = [...this.getBoardTipPositions(position), position];
+  getTableAt(
+    position = this.position,
+    positionZ = this.positionZ,
+    direction = this.boardDirection
+  ) {
+    const testPoints = [
+      ...this.getBoardTipPositions(position, direction),
+      position,
+    ];
 
     return gameLevel.tables.find(table =>
       testPoints.find(
@@ -111,8 +121,12 @@ export default class Player {
     );
   }
 
-  getRailAt(position, positionZ) {
-    const [nose, tail] = this.getBoardTipPositions(position);
+  getRailAt(
+    position = this.position,
+    positionZ = this.positionZ,
+    direction = this.boardDirection
+  ) {
+    const [nose, tail] = this.getBoardTipPositions(position, direction);
     return gameLevel.rails.find(
       rail =>
         rail.height >= positionZ &&
@@ -121,11 +135,11 @@ export default class Player {
   }
 
   isOnRail() {
-    return this.getRailAt(this.position, this.positionZ);
+    return this.getRailAt();
   }
 
   isOnTable() {
-    return this.getTableAt(this.position, this.positionZ);
+    return this.getTableAt();
   }
 
   handleInput(dt, { input }) {
@@ -330,8 +344,8 @@ export default class Player {
 
   applyBoardPhysics() {
     const onGround = this.isGrounded();
-    const onRail = this.getRailAt(this.position);
-    const onTable = this.getTableAt(this.position);
+    const onRail = this.isOnRail();
+    const onTable = this.isOnTable();
     if (onRail || onTable || !onGround) return;
 
     const edgeForce = this.getEdgeForce();
@@ -437,9 +451,10 @@ export default class Player {
   handleRails() {
     const previousRail = this.getRailAt(
       this.previousPosition,
-      this.previousPositionZ
+      this.previousPositionZ,
+      this.lastBoardDirection
     );
-    const currentRail = this.getRailAt(this.position, this.positionZ);
+    const currentRail = this.getRailAt();
 
     const enteredRail = !previousRail && currentRail;
 
@@ -465,11 +480,12 @@ export default class Player {
   }
 
   handleTables() {
-    const currentTable = this.getTableAt(this.position, this.positionZ);
+    const currentTable = this.getTableAt();
 
     const previousTable = this.getTableAt(
       this.previousPosition,
-      this.previousPositionZ
+      this.previousPositionZ,
+      this.lastBoardDirection
     );
 
     const enteredTable = currentTable && !previousTable;
@@ -504,7 +520,7 @@ export default class Player {
   }
 
   emitParticles(dt, gameContext) {
-    const rail = this.getRailAt(this.position, this.positionZ);
+    const rail = this.getRailAt();
 
     if (rail) {
       const position = new Vector(rail.position.x, this.position.y);
