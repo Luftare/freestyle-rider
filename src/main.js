@@ -17,16 +17,22 @@ audio.init();
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 const paint = new Paint(canvas);
+const startGameButton = document.getElementById('start-game');
+startGameButton.addEventListener('click', startGame);
+startGameButton.addEventListener('touchstart', startGame);
 
-const fitGameToScreen = debounce(() => {
+function startGame() {
+  document.getElementById('welcome-view').style.display = 'none';
+  fitGameToScreen();
+  window.addEventListener('resize', debounce(fitGameToScreen, 500));
+  gameLoop.start();
+}
+
+function fitGameToScreen() {
   canvas.style.display = 'block';
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-}, 500);
-
-fitGameToScreen();
-
-window.addEventListener('resize', fitGameToScreen);
+}
 
 const player = new Player();
 const gameContext = {
@@ -76,9 +82,8 @@ function render() {
   player.render(paint);
 }
 
-new Loop({
+const gameLoop = new Loop({
   animationFrame: true,
-  autoStart: true,
   onTick: dtInMs => {
     const dtInSeconds = Math.min(0.1, dtInMs / 1000);
     update(dtInSeconds);

@@ -12,10 +12,10 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "parcel": "^1.12.3"
+    "parcel": "^1.12.4"
   },
   "dependencies": {
-    "howler": "^2.1.1",
+    "howler": "^2.1.2",
     "lodash": "^4.17.15",
     "loop": "github:Luftare/loop",
     "paint": "github:Luftare/paint",

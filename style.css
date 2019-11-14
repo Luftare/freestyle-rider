@@ -6,6 +6,8 @@
   -moz-user-select: none; /* Old versions of Firefox */
   -ms-user-select: none; /* Internet Explorer/Edge */
   user-select: none;
+  font-family: sans-serif;
+  font-weight: 200;
 }
 
 html,
@@ -60,4 +62,34 @@ body {
   grid-row: 2;
   grid-column: 2;
   background: #43d597;
+}
+
+#welcome-view {
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
+  box-sizing: border-box;
+  width: 100vw;
+  height: 100vh;
+  justify-content: space-between;
+  align-items: center;
+  background-color: lightblue;
+  background-image: url('./assets/images/mountains.jpg');
+  background-size: cover;
+  background-position: center;
+}
+
+#welcome-view h1 {
+  color: white;
+  font-size: 3rem;
+}
+
+#start-game {
+  color: navy;
+  font-size: 2rem;
+  padding: 1rem;
+  background-color: lightblue;
+  background: none;
+  border: solid navy 0.2rem;
+  border-radius: 1rem;
 }

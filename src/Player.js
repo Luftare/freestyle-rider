@@ -18,7 +18,6 @@ import {
   sprites,
   renderScale,
 } from './Graphics';
-import { SLOPE_WIDTH } from './config';
 import gameLevel from './gameLevel';
 import audio from './audio';
 
@@ -374,13 +373,17 @@ export default class Player {
   }
 
   handleSlopeSideBoundaries() {
-    if (this.position.x < -SLOPE_WIDTH / 2) {
-      this.position.x = -SLOPE_WIDTH / 2;
+    const slopeWidth = window.innerWidth - metersToPixels(2);
+    const minX = -slopeWidth / 2;
+    const maxX = slopeWidth / 2;
+
+    if (this.position.x < minX) {
+      this.position.x = minX;
       this.velocity.x = Math.abs(this.velocity.x) * 0.5;
     }
 
-    if (this.position.x > SLOPE_WIDTH / 2) {
-      this.position.x = SLOPE_WIDTH / 2;
+    if (this.position.x > maxX) {
+      this.position.x = maxX;
       this.velocity.x = -Math.abs(this.velocity.x) * 0.5;
     }
   }
