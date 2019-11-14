@@ -12,7 +12,7 @@ const audio = {
           clang: [8000, 500],
           snowLanding: [10000, 1500],
           table: [12000, 3000],
-          wind: [17000, 2000]
+          wind: [17000, 2000],
         },
         onload() {
           audio.playbackIds.snow = audio.sprites.play('snow');
@@ -21,10 +21,12 @@ const audio = {
           audio.sprites.volume(0.1, audio.playbackIds.snow);
           audio.sprites.loop(true, audio.playbackIds.wind);
           audio.sprites.volume(0.1, audio.playbackIds.wind);
-        }
+        },
       });
+      window.removeEventListener('touchstart', handler);
       window.removeEventListener('keydown', handler);
     };
+    window.addEventListener('touchstart', handler);
     window.addEventListener('keydown', handler);
   },
   sprites: null,
@@ -32,7 +34,7 @@ const audio = {
     rail: 0,
     snow: 0,
     clang: 0,
-    table: 0
+    table: 0,
   },
   play(name) {
     if (!audio.sprites) return;
@@ -45,7 +47,7 @@ const audio = {
   setVolume(name, volume) {
     if (!audio.sprites) return;
     audio.sprites.volume(volume, audio.playbackIds[name]);
-  }
+  },
 };
 
 module.exports = audio;
