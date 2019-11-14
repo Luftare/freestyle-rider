@@ -254,7 +254,11 @@ export default class Player {
     if (this.isGrounded()) {
       this.angularVelocity *= 0.95;
     }
-
+    const maxAngularVelocity = 0.3;
+    this.angularVelocity = Math.max(
+      -maxAngularVelocity,
+      Math.min(maxAngularVelocity, this.angularVelocity)
+    );
     this.boardDirection.rotate(this.angularVelocity);
   }
 
