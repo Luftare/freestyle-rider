@@ -28,7 +28,6 @@ const gravity = metersToPixels(-9.81);
 
 export default class Player {
   constructor(stance) {
-    console.log(stance);
     this.scale = 0.9;
     this.position = new Vector(gameLevel.start);
     this.previousPosition = this.position.clone();
