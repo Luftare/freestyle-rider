@@ -27,7 +27,8 @@ const DEBUG_GRAPHICS = false;
 const gravity = metersToPixels(-9.81);
 
 export default class Player {
-  constructor() {
+  constructor(stance) {
+    console.log(stance);
     this.scale = 0.9;
     this.position = new Vector(gameLevel.start);
     this.previousPosition = this.position.clone();
@@ -37,7 +38,7 @@ export default class Player {
     this.velocityZ = 0;
     this.moment = 1;
     this.angularVelocity = 0;
-    this.boardDirection = new Vector(0, -1);
+    this.boardDirection = new Vector(0, stance);
     this.boardLength = metersToPixels(1.6) * this.scale;
     this.boardWidth = metersToPixels(0.4) * this.scale;
     this.bodyRotationVelocity = 3;
@@ -105,7 +106,6 @@ export default class Player {
     if (!currentlyGrounded && !didJump) {
       this.jumpRotation += this.getAngularDelta();
     }
-
 
     if (didLand) {
       const minAirTimeToBeTrick = 500;

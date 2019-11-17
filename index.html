@@ -1,27 +1,29 @@
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, minimal-ui, initial-scale=1"
-    />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
-    />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="mobile-web-app-capable" content="yes" />
 
-    <link rel="stylesheet" href="style.css" />
-  </head>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, minimal-ui, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
 
-  <body>
-    <canvas id="canvas"></canvas>
-    <div id="messages"></div>
-    <div id="welcome-view">
-      <h1>GOOD OL' DAYS</h1>
-      <button id="start-game">RIDE</button>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <canvas id="canvas"></canvas>
+  <div id="messages"></div>
+  <div id="welcome-view">
+    <h1>GOOD OL' DAYS</h1>
+    <div>
+      <label class="stance-option"><input type="radio" name="stance-selection" value="regular"
+          id="stance-option--regular" /> REGULAR</label>
+      <label class="stance-option"><input type="radio" name="stance-selection" value="goofy" id="stance-option--goofy"
+          checked /> GOOFY</label>
     </div>
-    <script src="./src/main.js"></script>
-  </body>
+    <button id="start-game">RIDE</button>
+  </div>
+  <script src="./src/main.js"></script>
+</body>
+
 </html>

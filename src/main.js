@@ -18,6 +18,15 @@ const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 const paint = new Paint(canvas);
 
+let playerStance = -1;
+
+document.getElementById('stance-option--goofy').addEventListener('change', (e) => {
+  playerStance = -1;
+})
+document.getElementById('stance-option--regular').addEventListener('change', (e) => {
+  playerStance = 1;
+})
+
 const handleEnterKey = e => {
   if (e.key === 'Enter') {
     startGame();
@@ -34,6 +43,7 @@ function startGame() {
   document.getElementById('welcome-view').style.display = 'none';
   fitGameToScreen();
   window.addEventListener('resize', debounce(fitGameToScreen, 500));
+  gameContext.player = new Player(playerStance);
   gameLoop.start();
 }
 
@@ -43,15 +53,15 @@ function fitGameToScreen() {
   canvas.height = window.innerHeight;
 }
 
-const player = new Player();
 const gameContext = {
+  player: null,
   particles: [],
   input: new GameInput(canvas),
   fx: new Fx(canvas),
 };
 
 function update(dt) {
-  player.update(dt, gameContext);
+  gameContext.player.update(dt, gameContext);
   gameContext.particles.forEach(particle => particle.update(dt));
   gameContext.particles = gameContext.particles.filter(
     particle => particle.life > 0
@@ -62,7 +72,7 @@ function update(dt) {
 function render() {
   canvas.width = canvas.width;
   gameContext.fx.update(0.0016);
-  ctx.translate(canvas.width / 2, -player.position.y + canvas.height / 1.3);
+  ctx.translate(canvas.width / 2, -gameContext.player.position.y + canvas.height / 1.3);
 
   renderSlopes(gameLevel.slopes, paint);
 
@@ -73,7 +83,7 @@ function render() {
     fill: 'lightblue',
   });
 
-  player.renderShadow(paint);
+  gameContext.player.renderShadow(paint);
   gameLevel.kickers.forEach(kicker => renderKickerShadow(kicker, paint));
   gameLevel.rails.forEach(rail => renderRailShadow(rail, paint));
   gameLevel.tables.forEach(table => renderTableShadow(table, paint));
@@ -88,7 +98,7 @@ function render() {
   gameLevel.rails.forEach(rail => renderRail(rail, paint));
   gameLevel.tables.forEach(table => renderTable(table, paint));
   gameContext.particles.forEach(particle => particle.render(paint));
-  player.render(paint);
+  gameContext.player.render(paint);
 }
 
 const gameLoop = new Loop({
