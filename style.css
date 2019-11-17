@@ -122,7 +122,8 @@ body {
 }
 
 .message {
-  font-weight: 400;
+  font-weight: 300;
+  font-family: sans-serif;
   opacity: 0;
   font-size: 3rem;
   color: orange;

@@ -13,7 +13,6 @@ import {
   getShadowPosition,
   SHADOW_COLOR,
   metersToPixels,
-  pixelsToMeters,
   mass,
   sprites,
   renderScale,
@@ -48,6 +47,8 @@ export default class Player {
     this.weight = mass(80);
     this.forces = [];
     this.jumpRotation = 0;
+    this.didTouchRail = false;
+    this.jumpStartTime = 0;
   }
 
   getAngularDelta() {
@@ -89,6 +90,9 @@ export default class Player {
     const currentlyGrounded = this.positionZ <= 0;
     const didJump = previouslyGrounded && !currentlyGrounded;
     const didLand = !previouslyGrounded && currentlyGrounded;
+    if (!this.isGrounded() && this.jumpStartTime === 0) {
+      this.jumpStartTime = Date.now();
+    }
 
     if (didJump) {
       let angle = this.velocity.angleBetweenSigned(this.boardDirection);
@@ -102,25 +106,39 @@ export default class Player {
       this.jumpRotation += this.getAngularDelta();
     }
 
+
     if (didLand) {
-      const degrees = Math.abs(radToDeg(this.jumpRotation));
-      const adjustedDegrees = degrees + 20; // Interpret trick upwards
-      const normalizedDegrees = Math.round(adjustedDegrees / 180) * 180;
+      const minAirTimeToBeTrick = 500;
+      const longAir = Date.now() - this.jumpStartTime >= minAirTimeToBeTrick
 
-      let currentAngle = this.velocity.angleBetweenSigned(this.boardDirection);
-      if (Math.abs(currentAngle) > Math.PI / 2) {
-        currentAngle += currentAngle < 0 ? Math.PI : -Math.PI; // Handle switch stance
+      if (longAir) {
+        const degrees = Math.abs(radToDeg(this.jumpRotation));
+        const adjustedDegrees = degrees + 30; // Interpret degrees upwards
+        const normalizedDegrees = Math.round(adjustedDegrees / 180) * 180;
+
+        let currentAngle = this.velocity.angleBetweenSigned(this.boardDirection);
+        if (Math.abs(currentAngle) > Math.PI / 2) {
+          currentAngle += currentAngle < 0 ? Math.PI : -Math.PI; // Handle switch stance
+        }
+        const landingBoardDegrees = Math.abs(radToDeg(currentAngle));
+
+        let color = '#42f59b';
+        if (landingBoardDegrees > 10) color = '#dee340';
+        if (landingBoardDegrees > 25) color = '#e38c40';
+        if (landingBoardDegrees > 40) color = '#e34040';
+
+
+        if (normalizedDegrees === 0) {
+          const message = this.didTouchRail ? 'Slide' : 'Air';
+          showMessage(message, color);
+
+        } else {
+          const messagePrefix = this.didTouchRail ? 'Slide ' : '';
+          showMessage(messagePrefix + normalizedDegrees + '°', color);
+        }
       }
-      const landingBoardDegrees = Math.abs(radToDeg(currentAngle));
-
-      let color = '#42f59b';
-      if (landingBoardDegrees > 10) color = '#dee340';
-      if (landingBoardDegrees > 25) color = '#e38c40';
-      if (landingBoardDegrees > 40) color = '#e34040';
-
-      if (normalizedDegrees > 0) {
-        showMessage(normalizedDegrees + '°', color);
-      }
+      this.jumpStartTime = 0;
+      this.didTouchRail = false;
     }
   }
 
@@ -516,6 +534,7 @@ export default class Player {
     }
 
     if (currentRail) {
+      this.didTouchRail = true;
       const shouldTouchRail =
         this.positionZ - currentRail.height < metersToPixels(0.0);
 
@@ -548,6 +567,7 @@ export default class Player {
     }
 
     if (currentTable) {
+      this.didTouchRail = true;
       this.velocityZ = 0;
       this.positionZ = currentTable.height;
     }
@@ -644,8 +664,8 @@ export default class Player {
     const headAngle = this.isGrounded()
       ? this.boardDirection.angle + this.bodyAngle * 0.5 + towardsDownHillAngle
       : this.boardDirection.angle +
-        this.bodyAngle * -0.5 +
-        towardsDownHillAngle;
+      this.bodyAngle * -0.5 +
+      towardsDownHillAngle;
 
     paint.image({
       image: sprites.head,
