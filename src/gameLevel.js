@@ -61,11 +61,11 @@ const slopes = [
     length: metersToPixels(13.5),
   },
   {
-    angle: toRadians(30),
+    angle: toRadians(25),
     length: metersToPixels(18.5),
   },
   {
-    angle: toRadians(20),
+    angle: toRadians(15),
     length: metersToPixels(5),
   },
   {

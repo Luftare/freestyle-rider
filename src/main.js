@@ -21,12 +21,16 @@ const paint = new Paint(canvas);
 
 let playerStance = -1;
 
-document.getElementById('stance-option--goofy').addEventListener('change', (e) => {
-  playerStance = -1;
-})
-document.getElementById('stance-option--regular').addEventListener('change', (e) => {
-  playerStance = 1;
-})
+document
+  .getElementById('stance-option--goofy')
+  .addEventListener('change', e => {
+    playerStance = -1;
+  });
+document
+  .getElementById('stance-option--regular')
+  .addEventListener('change', e => {
+    playerStance = 1;
+  });
 
 const handleEnterKey = e => {
   if (e.key === 'Enter') {
@@ -38,8 +42,14 @@ const handleEnterKey = e => {
 const isTouchDevice = 'ontouchstart' in window;
 
 const startGameButton = document.getElementById('start-game');
-startGameButton.addEventListener('click', isTouchDevice ? displayGuide : startGame);
-startGameButton.addEventListener('touchstart', isTouchDevice ? displayGuide : startGame);
+startGameButton.addEventListener(
+  'click',
+  isTouchDevice ? displayGuide : startGame
+);
+startGameButton.addEventListener(
+  'touchstart',
+  isTouchDevice ? displayGuide : startGame
+);
 window.addEventListener('keydown', handleEnterKey);
 
 document.getElementById('guide').addEventListener('mousedown', startGame);
@@ -82,13 +92,17 @@ function update(dt) {
   gameContext.particles = gameContext.particles.filter(
     particle => particle.life > 0
   );
+
   gameContext.input.clearState();
 }
 
 function render() {
   canvas.width = canvas.width;
   gameContext.fx.update(0.0016);
-  ctx.translate(canvas.width / 2, -gameContext.player.position.y + canvas.height / 1.3);
+  ctx.translate(
+    canvas.width / 2,
+    -gameContext.player.position.y + canvas.height / 1.3
+  );
 
   renderSlopes(gameLevel.slopes, paint);
 
