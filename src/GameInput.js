@@ -19,7 +19,7 @@ module.exports = class GameInput {
     this.mouseDown = false;
     this.touches = [];
 
-    window.addEventListener('touchstart', e => {
+    canvas.addEventListener('touchstart', e => {
       e.preventDefault();
       for (
         let touchIndex = 0;
@@ -31,7 +31,7 @@ module.exports = class GameInput {
       }
     });
 
-    window.addEventListener('touchend', e => {
+    canvas.addEventListener('touchend', e => {
       e.preventDefault();
       for (
         let touchIndex = 0;
@@ -43,7 +43,7 @@ module.exports = class GameInput {
       }
     });
 
-    window.addEventListener('touchleave', e => {
+    canvas.addEventListener('touchleave', e => {
       e.preventDefault();
       for (
         let touchIndex = 0;
