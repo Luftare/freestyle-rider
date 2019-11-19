@@ -108,14 +108,16 @@ export default class Player {
 
     if (didLand) {
       const minAirTimeToBeTrick = 500;
-      const longAir = Date.now() - this.jumpStartTime >= minAirTimeToBeTrick
+      const longAir = Date.now() - this.jumpStartTime >= minAirTimeToBeTrick;
 
       if (longAir) {
         const degrees = Math.abs(radToDeg(this.jumpRotation));
         const adjustedDegrees = degrees + 30; // Interpret degrees upwards
         const normalizedDegrees = Math.round(adjustedDegrees / 180) * 180;
 
-        let currentAngle = this.velocity.angleBetweenSigned(this.boardDirection);
+        let currentAngle = this.velocity.angleBetweenSigned(
+          this.boardDirection
+        );
         if (Math.abs(currentAngle) > Math.PI / 2) {
           currentAngle += currentAngle < 0 ? Math.PI : -Math.PI; // Handle switch stance
         }
@@ -126,11 +128,9 @@ export default class Player {
         if (landingBoardDegrees > 25) color = '#e38c40';
         if (landingBoardDegrees > 40) color = '#e34040';
 
-
         if (normalizedDegrees === 0) {
           const message = this.didTouchRail ? 'Slide' : 'Air';
           showMessage(message, color);
-
         } else {
           const messagePrefix = this.didTouchRail ? 'Slide ' : '';
           showMessage(messagePrefix + normalizedDegrees + '°', color);
@@ -540,6 +540,7 @@ export default class Player {
       if (shouldTouchRail) {
         this.velocityZ = 0;
         this.positionZ = currentRail.height;
+        this.velocity.x *= 0.98;
       }
     }
   }
@@ -663,8 +664,8 @@ export default class Player {
     const headAngle = this.isGrounded()
       ? this.boardDirection.angle + this.bodyAngle * 0.5 + towardsDownHillAngle
       : this.boardDirection.angle +
-      this.bodyAngle * -0.5 +
-      towardsDownHillAngle;
+        this.bodyAngle * -0.5 +
+        towardsDownHillAngle;
 
     paint.image({
       image: sprites.head,
