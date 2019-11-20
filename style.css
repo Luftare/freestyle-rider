@@ -115,6 +115,11 @@ body {
   border-radius: 1rem;
 }
 
+#start-game:disabled {
+  border-color: grey;
+  color: grey;
+}
+
 #messages {
   position: absolute;
   z-index: 10;

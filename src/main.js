@@ -13,23 +13,30 @@ import audio from './audio';
 import Player from './Player';
 import Fx from './Fx';
 
-audio.init();
-
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 const paint = new Paint(canvas);
 
-let playerStance = -1;
+const gameContext = {
+  playerStance: -1, //-1 = goofy, 1 = regular
+  player: null,
+  particles: [],
+  input: new GameInput(canvas),
+  fx: new Fx(canvas),
+};
+
+audio.init();
 
 document
   .getElementById('stance-option--goofy')
   .addEventListener('change', e => {
-    playerStance = -1;
+    gameContext.playerStance = -1;
   });
+
 document
   .getElementById('stance-option--regular')
   .addEventListener('change', e => {
-    playerStance = 1;
+    gameContext.playerStance = 1;
   });
 
 const handleEnterKey = e => {
@@ -65,10 +72,11 @@ function startGame() {
   document.getElementById('welcome-view').style.display = 'none';
   fitGameToScreen();
   window.addEventListener('resize', debounce(fitGameToScreen, 500));
-  gameContext.player = new Player(playerStance);
+  gameContext.player = new Player(gameContext.playerStance);
   render();
   showMessage('Break a leg!', '#42f59b');
   setTimeout(() => {
+    audio.startAmbientSounds();
     gameLoop.start();
   }, 1000);
 }
@@ -78,13 +86,6 @@ function fitGameToScreen() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 }
-
-const gameContext = {
-  player: null,
-  particles: [],
-  input: new GameInput(canvas),
-  fx: new Fx(canvas),
-};
 
 function update(dt) {
   gameContext.player.update(dt, gameContext);

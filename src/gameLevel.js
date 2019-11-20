@@ -11,7 +11,7 @@ const kickers = [
     position: { x: -metersToPixels(3), y: -metersToPixels(88) },
     width: metersToPixels(6),
     height: metersToPixels(0.6),
-    length: metersToPixels(2.5),
+    length: metersToPixels(2.3),
   },
   {
     position: { x: -metersToPixels(4), y: -metersToPixels(135) },
@@ -57,7 +57,7 @@ const slopes = [
     length: metersToPixels(20),
   },
   {
-    angle: toRadians(5),
+    angle: toRadians(8),
     length: metersToPixels(13.5),
   },
   {
