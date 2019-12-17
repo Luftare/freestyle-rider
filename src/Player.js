@@ -107,7 +107,7 @@ export default class Player {
     }
 
     if (didLand) {
-      const minAirTimeToBeTrick = 500;
+      const minAirTimeToBeTrick = 1000;
       const longAir = Date.now() - this.jumpStartTime >= minAirTimeToBeTrick;
 
       if (longAir) {
@@ -310,7 +310,7 @@ export default class Player {
   }
 
   jump() {
-    if (!this.isOnRail()) {
+    if (!this.isOnRail() && !this.isOnTable()) {
       const angleDelta = this.getAngularDelta();
 
       this.angularVelocity =
