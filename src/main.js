@@ -15,12 +15,17 @@ import Fx from './Fx';
 
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
+const slowdownButton = document.getElementById('slowdown');
 const paint = new Paint(canvas);
+
+const TIME_FACTOR_NORMAL = 1;
+const TIME_FACTOR_SLOW = 0.5;
 
 const gameContext = {
   playerStance: -1, //-1 = goofy, 1 = regular
   player: null,
   particles: [],
+  timeFactor: TIME_FACTOR_NORMAL,
   input: new GameInput(canvas),
   fx: new Fx(canvas),
 };
@@ -62,12 +67,35 @@ window.addEventListener('keydown', handleEnterKey);
 document.getElementById('guide').addEventListener('mousedown', startGame);
 document.getElementById('guide').addEventListener('touchstart', startGame);
 
+export function setSlowDown(activate) {
+  gameContext.timeFactor = activate ? TIME_FACTOR_SLOW : TIME_FACTOR_NORMAL;
+  const methodName = activate ? 'add' : 'remove';
+  slowdownButton.classList[methodName]('button--active');
+}
+
+function toggleSlowdown(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  const shouldActivate = gameContext.timeFactor === TIME_FACTOR_NORMAL;
+  setSlowDown(shouldActivate);
+}
+
+slowdownButton.addEventListener('touchstart', toggleSlowdown);
+slowdownButton.addEventListener('mousedown', toggleSlowdown);
+
+window.addEventListener('keydown', ({ key }) => {
+  if (key.toLowerCase() === 's') {
+    setSlowDown(gameContext.timeFactor === TIME_FACTOR_NORMAL);
+  }
+});
+
 function displayGuide() {
   document.getElementById('welcome-view').style.display = 'none';
   document.getElementById('guide').style.display = 'grid';
 }
 
 function startGame() {
+  document.getElementById('slowdown').hidden = false;
   document.getElementById('guide').style.display = 'none';
   document.getElementById('welcome-view').style.display = 'none';
   fitGameToScreen();
@@ -135,7 +163,7 @@ function render() {
 const gameLoop = new Loop({
   animationFrame: true,
   onTick: dtInMs => {
-    const dtInSeconds = Math.min(0.1, dtInMs / 1000);
+    const dtInSeconds = Math.min(0.1, (gameContext.timeFactor * dtInMs) / 1000);
     update(dtInSeconds);
     render();
   },

@@ -21,6 +21,7 @@ import {
 } from './Graphics';
 import gameLevel from './gameLevel';
 import audio from './audio';
+import { setSlowDown } from './main';
 
 const DEBUG_GRAPHICS = false;
 
@@ -369,6 +370,7 @@ export default class Player {
       audio.play('snowLanding');
       audio.setVolume('snowLanding', boardHitGroundNoiseVolume);
       gameContext.fx.shake(landingImpactFactor);
+      setSlowDown(false);
     }
 
     const enteredNewSlope = currentSlope !== previousSlope;
