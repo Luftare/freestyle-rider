@@ -13,7 +13,7 @@ module.exports = class GameInput {
   constructor(canvas) {
     this.keysDown = {};
     this.keysDownOnce = {};
-    this.relativeClicks = {};
+    this.relativeClicks = [];
     this.releasedKeys = [];
     this.mousePosition = { x: 0, y: 0 };
     this.mouseDown = false;

@@ -9,10 +9,6 @@ function createSprite(src) {
   return img;
 }
 
-function isTouchDevice() {
-  return 'ontouchstart' in window;
-}
-
 const messagesContainer = document.getElementById('messages');
 let messageTimeoutId = 0;
 
@@ -24,7 +20,6 @@ const graphics = {
   SHADOW_COLOR: 'grey',
   SNOW_COLOR: 'white',
   SNOW_SHADOW_COLOR: 'lightgrey',
-  isTouchDevice,
   sprites: {
     boardAndLegs: createSprite(boardAndLegsSrc),
     torso: createSprite(torsoSrc),
