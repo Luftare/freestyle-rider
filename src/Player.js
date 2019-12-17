@@ -95,12 +95,8 @@ export default class Player {
       this.jumpStartTime = Date.now();
     }
 
-    if (didJump) {
-      let angle = this.velocity.angleBetweenSigned(this.boardDirection);
-      if (Math.abs(angle) > Math.PI / 2) {
-        angle += angle < 0 ? Math.PI : -Math.PI; // Handle switch stance
-      }
-      this.jumpRotation = angle; // Include rotation on ground
+    if (didJump && this.jumpRotation === 0) {
+      this.saveStartRotation();
     }
 
     if (!currentlyGrounded && !didJump) {
@@ -108,7 +104,7 @@ export default class Player {
     }
 
     if (didLand) {
-      const minAirTimeToBeTrick = 1000;
+      const minAirTimeToBeTrick = 600;
       const longAir = Date.now() - this.jumpStartTime >= minAirTimeToBeTrick;
 
       if (longAir) {
@@ -137,9 +133,19 @@ export default class Player {
           showMessage(messagePrefix + normalizedDegrees + '°', color);
         }
       }
+
+      this.jumpRotation = 0;
       this.jumpStartTime = 0;
       this.didTouchRail = false;
     }
+  }
+
+  saveStartRotation() {
+    let angle = this.velocity.angleBetweenSigned(this.boardDirection);
+    if (Math.abs(angle) > Math.PI / 2) {
+      angle += angle < 0 ? Math.PI : -Math.PI; // Handle switch stance
+    }
+    this.jumpRotation = angle; // Include rotation on ground
   }
 
   saveCurrentState() {
@@ -500,6 +506,7 @@ export default class Player {
     if (enteredKicker) {
       const kickerAngle = getKickerAngle(currentKicker);
       this.velocity.scale(Math.cos(kickerAngle));
+      this.saveStartRotation();
     }
 
     const jumpedKicker = !currentKicker && previousKicker;
@@ -593,7 +600,7 @@ export default class Player {
 
     if (rail) {
       const position = new Vector(rail.position.x, this.position.y);
-      const particleCount = 1;
+      const particleCount = 2;
 
       [...Array(particleCount)].forEach(() => {
         gameContext.particles.push(new SparkParticle(position));
@@ -606,14 +613,16 @@ export default class Player {
     const [nose, tail] = this.getBoardTipPositions();
 
     const edgeForce = this.getEdgeForce();
-    const particleCount = Math.floor(0.8 + edgeForce.length / 50);
+    const particleCount = Math.floor(edgeForce.length / 50);
     [...Array(particleCount)].forEach(() => {
       const toTail = nose
         .clone()
         .subtract(tail)
         .scale(Math.random());
       const position = tail.clone().add(toTail);
-      gameContext.particles.push(new SnowParticle(position));
+      gameContext.particles.push(
+        new SnowParticle(position, this.velocity.clone())
+      );
     });
   }
 
