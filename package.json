@@ -2,7 +2,7 @@
   "name": "freestyle-rider",
   "version": "1.0.0",
   "description": "",
-  "main": "index.html",
+  "mail": "index.html",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "parcel build index.html",
@@ -11,14 +11,16 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "devDependencies": {
-    "parcel": "2.0.0"
-  },
   "dependencies": {
-    "howler": "^2.1.2",
-    "lodash": "^4.17.15",
+    "howler": "^2.2.3",
+    "lodash": "^4.17.21",
     "loop": "github:Luftare/loop",
-    "paint": "github:Luftare/paint",
+    "paint": "github:Luftare/paint#e0850cabad793023eaf666fd75d216c2c88f5732",
     "vector": "github:Luftare/Vector"
+  },
+  "devDependencies": {
+    "@parcel/packager-raw-url": "^2.4.0",
+    "@parcel/transformer-webmanifest": "^2.4.0",
+    "parcel": "2.0.0"
   }
 }

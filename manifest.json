@@ -1,10 +1,16 @@
 {
   "name": "Freestyle",
   "short_name": "Freestyle",
-  "start_url": "/",
+  "start_url": ".",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#444444",
   "orientation": "portrait-primary",
-  "icons": []
+  "icons": [
+    {
+      "src": "url:./assets/images/icon.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    }
+  ]
 }

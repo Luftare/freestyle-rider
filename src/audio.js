@@ -1,5 +1,5 @@
-import { Howl } from 'howler';
-import fileSrc from '../assets/audio/fx.mp3';
+import { Howl } from "howler";
+import fileSrc from "url:../assets/audio/fx.mp3";
 
 const audio = {
   sprites: null,
@@ -10,8 +10,8 @@ const audio = {
     table: 0,
   },
   init() {
-    return new Promise(resolve => {
-      const initializationEvents = ['touchstart', 'keydown', 'mousedown'];
+    return new Promise((resolve) => {
+      const initializationEvents = ["touchstart", "keydown", "mousedown"];
       const firstInteractionHandler = () => {
         audio.sprites = new Howl({
           src: [fileSrc],
@@ -28,19 +28,19 @@ const audio = {
           },
         });
 
-        initializationEvents.forEach(name => {
+        initializationEvents.forEach((name) => {
           window.removeEventListener(name, firstInteractionHandler);
         });
       };
 
-      initializationEvents.forEach(name => {
+      initializationEvents.forEach((name) => {
         window.addEventListener(name, firstInteractionHandler);
       });
     });
   },
   startAmbientSounds() {
-    audio.playbackIds.snow = audio.sprites.play('snow');
-    audio.playbackIds.wind = audio.sprites.play('wind');
+    audio.playbackIds.snow = audio.sprites.play("snow");
+    audio.playbackIds.wind = audio.sprites.play("wind");
     audio.sprites.loop(true, audio.playbackIds.snow);
     audio.sprites.volume(0.1, audio.playbackIds.snow);
     audio.sprites.loop(true, audio.playbackIds.wind);
