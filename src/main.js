@@ -22,7 +22,7 @@ const slowdownButton = document.getElementById("slowdown");
 const paint = new Paint(canvas);
 
 const gameContext = {
-  playerStance: -1, //-1 = goofy, 1 = regular
+  playerStance: -1, // -1 = goofy, 1 = regular
   player: null,
   particles: [],
   timeFactor: TIME_FACTOR_NORMAL,
