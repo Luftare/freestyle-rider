@@ -1,14 +1,14 @@
-import Vector from 'vector';
-import SnowParticle from './SnowParticle';
-import SparkParticle from './SparkParticle';
+import Vector from "vector";
+import SnowParticle from "./SnowParticle";
+import SparkParticle from "./SparkParticle";
 import {
   getKickerHeightAt,
   getKickerAngle,
   pointAlignedWithKicker,
-} from './Kicker';
-import { isRailBetweenPoints } from './Rail';
-import { pointOnTable } from './Table';
-import { getSlopeAt } from './Slope';
+} from "./Kicker";
+import { isRailBetweenPoints } from "./Rail";
+import { pointOnTable } from "./Table";
+import { getSlopeAt } from "./Slope";
 import {
   getShadowPosition,
   SHADOW_COLOR,
@@ -18,19 +18,19 @@ import {
   renderScale,
   radToDeg,
   showMessage,
-} from './Graphics';
-import gameLevel from './gameLevel';
-import audio from './audio';
-import { setSlowDown } from './main';
+} from "./Graphics";
+import audio from "./audio";
+import { setSlowDown } from "./main";
 
 const DEBUG_GRAPHICS = false;
 
 const gravity = metersToPixels(-9.81);
 
 export default class Player {
-  constructor(stance) {
-    this.scale = 0.9;
-    this.position = new Vector(gameLevel.start);
+  constructor(state) {
+    this.gameLevel = state.gameLevel;
+    this.scale = 1;
+    this.position = new Vector(state.gameLevel.start);
     this.previousPosition = this.position.clone();
     this.positionZ = 0;
     this.previousPositionZ = 0;
@@ -38,7 +38,7 @@ export default class Player {
     this.velocityZ = 0;
     this.moment = 1;
     this.angularVelocity = 0;
-    this.boardDirection = new Vector(0, stance);
+    this.boardDirection = new Vector(0, state.stance);
     this.boardLength = metersToPixels(1.6) * this.scale;
     this.boardWidth = metersToPixels(0.4) * this.scale;
     this.bodyRotationVelocity = 3;
@@ -120,17 +120,17 @@ export default class Player {
         }
         const landingBoardDegrees = Math.abs(radToDeg(currentAngle));
 
-        let color = '#42f59b';
-        if (landingBoardDegrees > 10) color = '#dee340';
-        if (landingBoardDegrees > 25) color = '#e38c40';
-        if (landingBoardDegrees > 40) color = '#e34040';
+        let color = "#42f59b";
+        if (landingBoardDegrees > 10) color = "#dee340";
+        if (landingBoardDegrees > 25) color = "#e38c40";
+        if (landingBoardDegrees > 40) color = "#e34040";
 
         if (normalizedDegrees === 0) {
-          const message = this.didTouchRail ? 'Slide' : 'Air';
+          const message = this.didTouchRail ? "Slide" : "Air";
           showMessage(message, color);
         } else {
-          const messagePrefix = this.didTouchRail ? 'Slide ' : '';
-          showMessage(messagePrefix + normalizedDegrees + '°', color);
+          const messagePrefix = this.didTouchRail ? "Slide " : "";
+          showMessage(messagePrefix + normalizedDegrees + "°", color);
         }
       }
 
@@ -163,7 +163,7 @@ export default class Player {
   }
 
   getKickerAt({ x, y }, z) {
-    return gameLevel.kickers.find(kicker => {
+    return this.gameLevel.kickers.find((kicker) => {
       const { position, width, length } = kicker;
       return (
         x > position.x &&
@@ -185,9 +185,9 @@ export default class Player {
       position,
     ];
 
-    return gameLevel.tables.find(table =>
+    return this.gameLevel.tables.find((table) =>
       testPoints.find(
-        point => pointOnTable(point, table) && table.height >= positionZ
+        (point) => pointOnTable(point, table) && table.height >= positionZ
       )
     );
   }
@@ -198,8 +198,8 @@ export default class Player {
     direction = this.boardDirection
   ) {
     const [nose, tail] = this.getBoardTipPositions(position, direction);
-    return gameLevel.rails.find(
-      rail =>
+    return this.gameLevel.rails.find(
+      (rail) =>
         rail.height >= positionZ &&
         isRailBetweenPoints(rail, nose, tail, this.boardWidth)
     );
@@ -216,7 +216,7 @@ export default class Player {
   handleInput(dt, { input }) {
     this.handleTurning(dt, input);
 
-    const spaceKey = input.keysDownOnce[' '];
+    const spaceKey = input.keysDownOnce[" "];
     const shouldJump =
       spaceKey && (this.isGrounded() || this.isOnRail() || this.isOnTable());
 
@@ -355,7 +355,7 @@ export default class Player {
     const isFlying = this.positionZ > 0;
 
     if (isFlying) {
-      const slopeAngle = getSlopeAt(this.position, gameLevel.slopes).angle;
+      const slopeAngle = getSlopeAt(this.position, this.gameLevel.slopes).angle;
       this.velocityZ += Math.cos(slopeAngle) * gravity * dt;
       this.positionZ += this.velocityZ * dt;
     } else {
@@ -365,16 +365,19 @@ export default class Player {
   }
 
   applySlopePhysics(dt, gameContext) {
-    const currentSlope = getSlopeAt(this.position, gameLevel.slopes);
-    const previousSlope = getSlopeAt(this.previousPosition, gameLevel.slopes);
+    const currentSlope = getSlopeAt(this.position, this.gameLevel.slopes);
+    const previousSlope = getSlopeAt(
+      this.previousPosition,
+      this.gameLevel.slopes
+    );
     const didLandFromFlight = this.positionZ <= 0 && this.previousPositionZ > 0;
 
     if (didLandFromFlight) {
       const landingImpactFactor =
         this.getEdgeForce().length * 0.003 + Math.abs(this.velocityZ) * 0.005;
       const boardHitGroundNoiseVolume = Math.min(1, landingImpactFactor * 0.1);
-      audio.play('snowLanding');
-      audio.setVolume('snowLanding', boardHitGroundNoiseVolume);
+      audio.play("snowLanding");
+      audio.setVolume("snowLanding", boardHitGroundNoiseVolume);
       gameContext.fx.shake(landingImpactFactor);
       setSlowDown(false);
     }
@@ -399,7 +402,7 @@ export default class Player {
     }
 
     if (!this.isGrounded()) {
-      audio.setVolume('snow', 0);
+      audio.setVolume("snow", 0);
       return;
     }
     const kicker = this.getKickerAt(this.position, this.positionZ);
@@ -426,7 +429,7 @@ export default class Player {
 
     const snowVolume = Math.max(0.05, Math.min(1, edgeForce.length / 400));
     const normalizedSnowVolume = snowVolume ** 0.9 * 1;
-    audio.setVolume('snow', normalizedSnowVolume);
+    audio.setVolume("snow", normalizedSnowVolume);
   }
 
   getEdgeForce() {
@@ -452,8 +455,8 @@ export default class Player {
         this.velocity.length ** 2 + this.velocityZ ** 2
       );
       const normalizedVelocity = Math.min(1, totalVelocity / 1500);
-      audio.sprites.rate(normalizedVelocity, audio.playbackIds['wind']);
-      audio.setVolume('wind', normalizedVelocity * 0.3);
+      audio.sprites.rate(normalizedVelocity, audio.playbackIds["wind"]);
+      audio.setVolume("wind", normalizedVelocity * 0.3);
     }
   }
 
@@ -479,8 +482,8 @@ export default class Player {
   }
 
   handleEndOfSlope() {
-    if (this.position.y < gameLevel.end.y) {
-      this.position.y = gameLevel.start.y;
+    if (this.position.y < this.gameLevel.end.y) {
+      this.position.y = this.gameLevel.start.y;
     }
   }
 
@@ -532,13 +535,13 @@ export default class Player {
     const enteredRail = !previousRail && currentRail;
 
     if (enteredRail) {
-      audio.stop('rail');
-      audio.play('rail');
-      audio.setVolume('rail', 0.2);
+      audio.stop("rail");
+      audio.play("rail");
+      audio.setVolume("rail", 0.2);
     }
 
     if (!currentRail && !previousRail) {
-      audio.stop('rail');
+      audio.stop("rail");
     }
 
     if (currentRail) {
@@ -566,13 +569,13 @@ export default class Player {
     const enteredTable = currentTable && !previousTable;
 
     if (enteredTable) {
-      audio.stop('table');
-      audio.play('table');
-      audio.setVolume('table', 0.2);
+      audio.stop("table");
+      audio.play("table");
+      audio.setVolume("table", 0.2);
     }
 
     if (!currentTable && !previousTable) {
-      audio.stop('table');
+      audio.stop("table");
     }
 
     if (currentTable) {
@@ -615,10 +618,7 @@ export default class Player {
     const edgeForce = this.getEdgeForce();
     const particleCount = Math.floor(edgeForce.length / 50);
     [...Array(particleCount)].forEach(() => {
-      const toTail = nose
-        .clone()
-        .subtract(tail)
-        .scale(Math.random());
+      const toTail = nose.clone().subtract(tail).scale(Math.random());
       const position = tail.clone().add(toTail);
       gameContext.particles.push(
         new SnowParticle(position, this.velocity.clone())
@@ -633,11 +633,11 @@ export default class Player {
 
   renderShadow(paint) {
     paint.path({
-      points: this.getBoardTipPositions().map(point =>
+      points: this.getBoardTipPositions().map((point) =>
         getShadowPosition(point, this.positionZ)
       ),
       stroke: SHADOW_COLOR,
-      lineCap: 'round',
+      lineCap: "round",
       lineWidth: this.boardWidth,
     });
   }
@@ -654,8 +654,8 @@ export default class Player {
     if (DEBUG_GRAPHICS) {
       paint.path({
         points: this.getBoardTipPositions(),
-        stroke: 'lime',
-        lineCap: 'round',
+        stroke: "lime",
+        lineCap: "round",
         lineWidth: this.boardWidth,
       });
     }
@@ -693,7 +693,7 @@ export default class Player {
         anchor: new Vector(0.5, 0.5),
         width: metersToPixels(1.1),
         height: metersToPixels(0.3),
-        fill: 'red',
+        fill: "red",
       });
     }
   }

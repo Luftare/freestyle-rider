@@ -15,22 +15,27 @@
       name="apple-mobile-web-app-status-bar-style"
       content="black-translucent"
     />
-    
+
     <link rel="manifest" href="manifest.json" />
     <link rel="stylesheet" href="style.css" />
   </head>
 
   <body>
-    <canvas id="canvas"></canvas>
-    <button id="slowdown" class="button button--gui" hidden>Slow</button>
-    <div id="guide">
+    <canvas id="canvas" hidden></canvas>
+
+    <div id="game-scene-buttons" hidden>
+      <button id="slowdown-button" class="button button--gui">Slow</button>
+      <button id="menu-button" class="button button--gui">Menu</button>
+    </div>
+
+    <div id="guide" hidden>
       <div class="guide__jump">Jump</div>
       <div class="guide__left">Left</div>
       <div class="guide__right">Right</div>
     </div>
     <div id="messages"></div>
-    <div id="welcome-view">
-      <h1>GOOD OL' DAYS</h1>
+    <div id="menu-view">
+      <h1>TIME TO RIDE</h1>
       <div>
         <label class="stance-option"
           ><input

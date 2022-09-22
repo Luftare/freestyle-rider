@@ -1,0 +1,93 @@
+import Player from "./Player";
+import Paint from "Paint";
+import Loop from "loop";
+import Vector from "vector";
+import Fx from "./Fx";
+
+import { renderKicker, renderKickerShadow } from "./Kicker";
+import { renderRail, renderRailShadow } from "./Rail";
+import { renderTable, renderTableShadow } from "./Table";
+import { renderSlopes, getSlopeAt } from "./Slope";
+
+module.exports = class GameScene {
+  constructor(config) {
+    const { stance, gameLevel, input, canvas } = config;
+    this.canvas = canvas;
+    this.ctx = canvas.getContext("2d");
+    this.paint = new Paint(canvas);
+
+    this.state = {
+      gameLevel,
+      player: new Player(config),
+      fx: new Fx(canvas),
+      particles: [],
+      timeFactor: 1,
+      input,
+    };
+
+    this.loop = new Loop({
+      animationFrame: true,
+      onTick: (dtInMs) => {
+        const dtInSeconds = Math.min(
+          0.1,
+          (this.state.timeFactor * dtInMs) / 1000
+        );
+        this.update(dtInSeconds);
+        this.render(dtInSeconds);
+      },
+    });
+  }
+
+  update(dt) {
+    this.state.player.update(dt, this.state);
+    this.state.particles.forEach((particle) => particle.update(dt));
+    this.state.particles = this.state.particles.filter(
+      (particle) => particle.life > 0
+    );
+
+    this.state.input.clearState();
+  }
+
+  render(dt) {
+    this.canvas.width = this.canvas.width;
+    this.state.fx.update(dt);
+    this.ctx.translate(
+      this.canvas.width * 0.5,
+      -this.state.player.position.y + this.canvas.height / 1.3
+    );
+
+    renderSlopes(this.state.gameLevel.slopes, this.paint);
+
+    this.paint.rect({
+      position: new Vector(0, this.canvas.height / 2),
+      width: this.canvas.width,
+      height: 50,
+      fill: "lightblue",
+    });
+
+    this.state.player.renderShadow(this.paint);
+    this.state.gameLevel.kickers.forEach((kicker) =>
+      renderKickerShadow(kicker, this.paint)
+    );
+    this.state.gameLevel.rails.forEach((rail) =>
+      renderRailShadow(rail, this.paint)
+    );
+    this.state.gameLevel.tables.forEach((table) =>
+      renderTableShadow(table, this.paint)
+    );
+
+    this.state.gameLevel.kickers.forEach((kicker) => {
+      const slope = getSlopeAt(
+        { y: kicker.position.y + kicker.length },
+        this.state.gameLevel.slopes
+      );
+      renderKicker(kicker, slope.angle, this.paint);
+    });
+    this.state.gameLevel.rails.forEach((rail) => renderRail(rail, this.paint));
+    this.state.gameLevel.tables.forEach((table) =>
+      renderTable(table, this.paint)
+    );
+    this.state.particles.forEach((particle) => particle.render(this.paint));
+    this.state.player.render(this.paint);
+  }
+};

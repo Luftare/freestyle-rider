@@ -54,6 +54,11 @@ const audio = {
     if (!audio.sprites) return;
     audio.sprites.stop(audio.playbackIds[name]);
   },
+  stopAllSounds() {
+    for (let key in audio.playbackIds) {
+      audio.sprites.stop(audio.sprites[key]);
+    }
+  },
   setVolume(name, volume) {
     if (!audio.sprites) return;
     audio.sprites.volume(volume, audio.playbackIds[name]);

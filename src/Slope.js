@@ -1,5 +1,5 @@
-import Vector from 'vector';
-import { getAngledSnowColor, metersToPixels } from './Graphics';
+import Vector from "vector";
+import { getAngledSnowColor, metersToPixels, toRadians } from "./Graphics";
 
 module.exports = {
   renderSlopes(slopes, paint) {
@@ -36,11 +36,21 @@ module.exports = {
   getTotalSlopeLength(slopes) {
     return slopes.reduce((sum, slope) => sum + slope.length, 0);
   },
+  getFlatteningCurve(meters, startAngle, endAngle) {
+    const segmentCount = Math.floor(meters / metersToPixels(2));
+    const segmentLength = meters / segmentCount;
+    const angleTotalDiff = endAngle - startAngle;
+    const segmentAngleChange = angleTotalDiff / segmentCount;
+    return [...Array(segmentCount)].map((_, i) => ({
+      angle: toRadians(startAngle + i * segmentAngleChange),
+      length: segmentLength,
+    }));
+  },
   getSlopeAt({ y }, slopes) {
     let totalDistance = 0;
     let currentSlope = slopes[0];
 
-    slopes.forEach(slope => {
+    slopes.forEach((slope) => {
       if (totalDistance > y && totalDistance - slope.length < y) {
         currentSlope = slope;
       }

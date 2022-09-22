@@ -2,11 +2,11 @@ function touchToKey(touch) {
   const topSide = touch.pageY < window.innerHeight / 2;
 
   if (topSide) {
-    return ' ';
+    return " ";
   }
 
   const leftSide = touch.pageX < window.innerWidth / 2;
-  return leftSide ? 'ArrowLeft' : 'ArrowRight';
+  return leftSide ? "ArrowLeft" : "ArrowRight";
 }
 
 module.exports = class GameInput {
@@ -19,7 +19,7 @@ module.exports = class GameInput {
     this.mouseDown = false;
     this.touches = [];
 
-    canvas.addEventListener('touchstart', e => {
+    canvas.addEventListener("touchstart", (e) => {
       e.preventDefault();
       for (
         let touchIndex = 0;
@@ -31,7 +31,7 @@ module.exports = class GameInput {
       }
     });
 
-    canvas.addEventListener('touchend', e => {
+    canvas.addEventListener("touchend", (e) => {
       e.preventDefault();
       for (
         let touchIndex = 0;
@@ -43,7 +43,7 @@ module.exports = class GameInput {
       }
     });
 
-    canvas.addEventListener('touchleave', e => {
+    canvas.addEventListener("touchleave", (e) => {
       e.preventDefault();
       for (
         let touchIndex = 0;
@@ -55,15 +55,15 @@ module.exports = class GameInput {
       }
     });
 
-    window.addEventListener('keydown', ({ key }) => {
+    window.addEventListener("keydown", ({ key }) => {
       this.handleKeyDown(key);
     });
 
-    window.addEventListener('keyup', ({ key }) => {
+    window.addEventListener("keyup", ({ key }) => {
       this.handleKeyUp(key);
     });
 
-    canvas.addEventListener('mousedown', ({ x, y }) => {
+    canvas.addEventListener("mousedown", ({ x, y }) => {
       this.mouseDown = true;
 
       const canvasOffset = canvas.getBoundingClientRect();
@@ -73,14 +73,14 @@ module.exports = class GameInput {
       this.relativeClicks.push(this.mousePosition);
     });
 
-    canvas.addEventListener('mousemove', ({ x, y }) => {
+    canvas.addEventListener("mousemove", ({ x, y }) => {
       const canvasOffset = canvas.getBoundingClientRect();
       const relativeX = x - canvasOffset.left;
       const relativeY = y - canvasOffset.top;
       this.mousePosition = { x: relativeX, y: relativeY };
     });
 
-    canvas.addEventListener('mouseup', () => {
+    canvas.addEventListener("mouseup", () => {
       this.mouseDown = false;
     });
   }
@@ -110,7 +110,7 @@ module.exports = class GameInput {
   }
 
   clearState() {
-    this.releasedKeys.forEach(key => {
+    this.releasedKeys.forEach((key) => {
       this.keysDown[key] = false;
     });
 

@@ -10,6 +10,10 @@
   font-weight: 200;
 }
 
+[hidden]{
+  display: none !important;
+}
+
 html,
 body {
   margin: 0;
@@ -19,7 +23,6 @@ body {
 
 canvas {
   background: #444;
-  display: none;
 }
 
 body {
@@ -28,7 +31,7 @@ body {
 
 #guide {
   position: absolute;
-  display: none; /* JS will add inline display: grid */
+  display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
   width: 100vw;
@@ -70,7 +73,7 @@ body {
   grid-column: 2;
 }
 
-#welcome-view {
+#menu-view {
   display: flex;
   flex-direction: column;
   padding: 4rem 1rem;
@@ -85,7 +88,7 @@ body {
   background-position: center;
 }
 
-#welcome-view h1 {
+#menu-view h1 {
   color: white;
   text-shadow: 2px 1px 0px #444;
   font-size: 2.5rem;
@@ -157,10 +160,14 @@ body {
   animation-duration: 1.5s;
 }
 
-#slowdown {
+#game-scene-buttons {
   position: absolute;
-  left: 8px;
-  top: 8px;
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  top: 0;
+  padding: 8px;
+  box-sizing: border-box;
 }
 
 .button--gui {
