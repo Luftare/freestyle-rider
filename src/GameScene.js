@@ -1,5 +1,5 @@
 import Player from "./Player";
-import Paint from "Paint";
+import Paint from "paint";
 import Loop from "loop";
 import Vector from "vector";
 import Fx from "./Fx";
