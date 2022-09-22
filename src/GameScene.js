@@ -3,7 +3,6 @@ import Paint from "Paint";
 import Loop from "loop";
 import Vector from "vector";
 import Fx from "./Fx";
-
 import { renderKicker, renderKickerShadow } from "./Kicker";
 import { renderRail, renderRailShadow } from "./Rail";
 import { renderTable, renderTableShadow } from "./Table";
