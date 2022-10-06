@@ -36,9 +36,9 @@ module.exports = {
   getTotalSlopeLength(slopes) {
     return slopes.reduce((sum, slope) => sum + slope.length, 0);
   },
-  getFlatteningCurve(meters, startAngle, endAngle) {
-    const segmentCount = Math.floor(meters / metersToPixels(2));
-    const segmentLength = meters / segmentCount;
+  getCurvedSlope(meters, startAngle, endAngle) {
+    const segmentCount = Math.floor(meters / 2);
+    const segmentLength = metersToPixels(meters / segmentCount);
     const angleTotalDiff = endAngle - startAngle;
     const segmentAngleChange = angleTotalDiff / segmentCount;
     return [...Array(segmentCount)].map((_, i) => ({

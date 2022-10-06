@@ -2,7 +2,7 @@ import { debounce } from "lodash";
 import GameInput from "./GameInput";
 import GameScene from "./GameScene";
 import { showMessage } from "./Graphics";
-import gameLevel from "./gameLevel";
+import { levelFragments, mergeLevels } from "./levelFragments/index";
 import audio from "./audio";
 
 const TIME_FACTOR_NORMAL = 1;
@@ -13,6 +13,8 @@ const slowdownButton = document.getElementById("slowdown-button");
 const startGameButton = document.getElementById("start-game");
 const menuButton = document.getElementById("menu-button");
 const input = new GameInput(canvas);
+
+const gameLevel = mergeLevels(levelFragments);
 
 let gameConfig = {
   stance: -1,

@@ -6,8 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npm i && parcel build index.html",
-    "dev": "parcel index.html",
-    "level-editor": "parcel ./level-editor/editor.html"
+    "dev": "parcel index.html --no-cache",
+    "level-editor": "parcel ./level-editor/editor.html --no-cache"
   },
   "keywords": [],
   "author": "",

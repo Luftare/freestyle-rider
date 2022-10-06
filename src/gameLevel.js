@@ -1,4 +1,4 @@
-import { metersToPixels, toRadians } from './Graphics';
+import { metersToPixels, toRadians } from "./Graphics";
 
 const kickers = [
   {
