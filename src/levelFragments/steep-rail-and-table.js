@@ -4,22 +4,29 @@ import { DEFAULT_SLOPE_ANGLE } from "./consts";
 
 const kickers = [
   {
-    position: { x: -metersToPixels(6), y: -metersToPixels(25) },
-    width: metersToPixels(6.5),
+    position: { x: -metersToPixels(5), y: -metersToPixels(28) },
+    width: metersToPixels(10),
     height: metersToPixels(0.5),
-    length: metersToPixels(4),
-  },
-  {
-    position: { x: metersToPixels(0.5), y: -metersToPixels(23) },
-    width: metersToPixels(5.5),
-    height: metersToPixels(1),
     length: metersToPixels(4),
   },
 ];
 
-const rails = [];
+const rails = [
+  {
+    position: { x: -metersToPixels(3), y: -metersToPixels(46) },
+    height: metersToPixels(1),
+    length: metersToPixels(12),
+  },
+];
 
-const tables = [];
+const tables = [
+  {
+    position: { x: metersToPixels(1), y: -metersToPixels(44) },
+    width: metersToPixels(3),
+    height: metersToPixels(0.4),
+    length: metersToPixels(8),
+  },
+];
 
 const slopes = [
   {
@@ -28,7 +35,7 @@ const slopes = [
   },
   {
     angle: toRadians(35),
-    length: metersToPixels(15),
+    length: metersToPixels(20),
   },
   {
     angle: toRadians(DEFAULT_SLOPE_ANGLE),

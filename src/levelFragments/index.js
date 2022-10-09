@@ -7,19 +7,56 @@ import kickerKinkRail from "./kicker-kink-rail";
 import kickerRailTable from "./kicker-rail-table";
 import mediumKicker from "./medium-kicker";
 import smallDrop from "./small-drop";
+import steepRailAndTable from "./steep-rail-and-table";
+import steppedTables from "./stepped-tables";
 
 import { getTotalSlopeLength } from "../Slope";
 
 export const levelFragments = [
-  basicRail,
-  basicTable,
-  bigKicker,
-  flatTable,
-  kickerHighTable,
-  kickerKinkRail,
-  kickerRailTable,
-  mediumKicker,
-  smallDrop,
+  {
+    name: "Basic Rail",
+    level: basicRail,
+  },
+  {
+    name: "Basic Table",
+    level: basicTable,
+  },
+  {
+    name: "Big Kicker",
+    level: bigKicker,
+  },
+  {
+    name: "Flat Table",
+    level: flatTable,
+  },
+  {
+    name: "Steep Rail & Table",
+    level: steepRailAndTable,
+  },
+  {
+    name: "Kicker & High Table",
+    level: kickerHighTable,
+  },
+  {
+    name: "Kicker & Kink Rail",
+    level: kickerKinkRail,
+  },
+  {
+    name: "Kicker-Rail-Table Combo",
+    level: kickerRailTable,
+  },
+  {
+    name: "Medius Kicker",
+    level: mediumKicker,
+  },
+  {
+    name: "Stepped Tables",
+    level: steppedTables,
+  },
+  {
+    name: "Small Drop",
+    level: smallDrop,
+  },
 ];
 
 export const mergeLevels = (levels) => {

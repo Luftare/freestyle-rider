@@ -1,5 +1,5 @@
 import { metersToPixels, toRadians } from "../Graphics";
-import { getTotalSlopeLength } from "../Slope";
+import { getTotalSlopeLength, getCurvedSlope } from "../Slope";
 import { DEFAULT_SLOPE_ANGLE } from "./consts";
 
 const kickers = [];
@@ -8,18 +8,19 @@ const rails = [];
 
 const tables = [
   {
-    position: { x: -metersToPixels(1), y: -metersToPixels(25) },
-    width: metersToPixels(2),
-    height: metersToPixels(0.3),
-    length: metersToPixels(10),
+    position: { x: -metersToPixels(1.5), y: -metersToPixels(26) },
+    width: metersToPixels(3),
+    height: metersToPixels(0.2),
+    length: metersToPixels(8),
   },
 ];
 
 const slopes = [
   {
     angle: toRadians(DEFAULT_SLOPE_ANGLE),
-    length: metersToPixels(35),
+    length: metersToPixels(27),
   },
+  ...getCurvedSlope(15, DEFAULT_SLOPE_ANGLE + 15, DEFAULT_SLOPE_ANGLE),
 ];
 
 module.exports = {

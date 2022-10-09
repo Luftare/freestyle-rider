@@ -1,5 +1,6 @@
 import Vector from "vector";
 import { getAngledSnowColor, metersToPixels, toRadians } from "./Graphics";
+import { DEFAULT_SLOPE_ANGLE } from "./levelFragments/consts";
 
 module.exports = {
   renderSlopes(slopes, paint) {

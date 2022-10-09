@@ -6,7 +6,7 @@ const kickers = [
   {
     position: { x: -metersToPixels(3), y: -metersToPixels(20) },
     width: metersToPixels(6),
-    height: metersToPixels(0.6),
+    height: metersToPixels(0.5),
     length: metersToPixels(2.3),
   },
 ];

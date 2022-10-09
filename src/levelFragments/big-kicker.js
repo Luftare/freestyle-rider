@@ -4,7 +4,7 @@ import { DEFAULT_SLOPE_ANGLE } from "./consts";
 
 const kickers = [
   {
-    position: { x: -metersToPixels(5), y: -metersToPixels(85) },
+    position: { x: -metersToPixels(5), y: -metersToPixels(55) },
     width: metersToPixels(10),
     height: metersToPixels(3),
     length: metersToPixels(6),
@@ -21,15 +21,11 @@ const slopes = [
     length: metersToPixels(10),
   },
   {
-    angle: toRadians(40),
-    length: metersToPixels(30),
-  },
-  {
-    angle: toRadians(30),
+    angle: toRadians(35),
     length: metersToPixels(35),
   },
   {
-    angle: toRadians(20),
+    angle: toRadians(25),
     length: metersToPixels(25),
   },
   ...getCurvedSlope(40, 50, DEFAULT_SLOPE_ANGLE),

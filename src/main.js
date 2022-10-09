@@ -14,7 +14,15 @@ const startGameButton = document.getElementById("start-game");
 const menuButton = document.getElementById("menu-button");
 const input = new GameInput(canvas);
 
-const gameLevel = mergeLevels(levelFragments);
+const gameLevelOptions = [
+  ...levelFragments,
+  {
+    name: "All",
+    level: mergeLevels(levelFragments.map((f) => f.level)),
+  },
+];
+
+const gameLevel = gameLevelOptions[0].level;
 
 let gameConfig = {
   stance: -1,
@@ -28,6 +36,27 @@ let game;
 function boot() {
   audio.init();
   setEventListeners();
+  renderLevelSelectorHTML();
+}
+
+function renderLevelSelectorHTML() {
+  const container = document.getElementById("level-selector-container");
+  container.innerHTML = `
+    <select name="levels" id="level-selector">
+    ${gameLevelOptions
+      .map((o) => `<option value="${o.name}">${o.name}</option>`)
+      .join("")}
+    </select>
+  `;
+  requestAnimationFrame(() => {
+    const selector = document.getElementById("level-selector");
+    selector.addEventListener("change", () => {
+      gameConfig.gameLevel = (
+        gameLevelOptions.find((l) => l.name === selector.value) ??
+        gameLevelOptions[0]
+      ).level;
+    });
+  });
 }
 
 function fitGameToScreen() {

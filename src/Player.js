@@ -389,6 +389,7 @@ export default class Player {
 
       const originalVelocity = this.velocity.length;
       const slopeAngleDelta = currentSlope.angle - previousSlope.angle;
+
       this.velocityZ += Math.sin(slopeAngleDelta) * originalVelocity;
       this.velocity.scale(Math.cos(slopeAngleDelta));
 
@@ -397,7 +398,7 @@ export default class Player {
           this.angularVelocity = this.getAngularDelta() * 0.5;
         }
 
-        this.positionZ += metersToPixels(0.01);
+        this.positionZ += metersToPixels(0.0001);
       }
     }
 
