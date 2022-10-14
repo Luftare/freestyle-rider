@@ -9,6 +9,9 @@ import mediumKicker from "./medium-kicker";
 import smallDrop from "./small-drop";
 import steepRailAndTable from "./steep-rail-and-table";
 import steppedTables from "./stepped-tables";
+import flatKicker from "./flat-kicker";
+import miniKicker from "./mini-kicker";
+import stairs from "./stairs";
 
 import { getTotalSlopeLength } from "../Slope";
 
@@ -22,12 +25,24 @@ export const levelFragments = [
     level: basicTable,
   },
   {
+    name: "Stairs",
+    level: stairs,
+  },
+  {
     name: "Big Kicker",
     level: bigKicker,
   },
   {
+    name: "Mini Kicker",
+    level: miniKicker,
+  },
+  {
     name: "Flat Table",
     level: flatTable,
+  },
+  {
+    name: "Flat Kicker",
+    level: flatKicker,
   },
   {
     name: "Steep Rail & Table",
