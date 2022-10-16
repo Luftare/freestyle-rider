@@ -88,6 +88,7 @@ export const mergeLevels = (levels) => {
     slopes: [],
     rails: [],
     tables: [],
+    trees: [],
   };
 
   levels.forEach((level) => {
@@ -120,6 +121,17 @@ export const mergeLevels = (levels) => {
     res.tables = [
       ...res.tables,
       ...level.tables.map((k) => ({
+        ...k,
+        position: {
+          ...k.position,
+          y: k.position.y - offset,
+        },
+      })),
+    ];
+
+    res.trees = [
+      ...res.trees,
+      ...level.trees.map((k) => ({
         ...k,
         position: {
           ...k.position,

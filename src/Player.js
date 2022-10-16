@@ -1,6 +1,7 @@
 import Vector from "vector";
 import SnowParticle from "./SnowParticle";
 import SparkParticle from "./SparkParticle";
+import { playerCollidesTree, TREE_RADIUS } from "./Tree";
 import {
   getKickerHeightAt,
   getKickerAngle,
@@ -77,6 +78,7 @@ export default class Player {
   update(dt, gameContext) {
     this.handleInput(dt, gameContext);
     this.applyPhysics(dt, gameContext);
+    this.handleTrees(gameContext);
     this.handleKickers();
     this.handleRails();
     this.handleTables();
@@ -84,6 +86,25 @@ export default class Player {
     this.handleSlopeBoundaries();
     this.handleTrickNames();
     this.saveCurrentState();
+  }
+
+  handleTrees(gameContext) {
+    gameContext.gameLevel.trees.forEach((tree) => {
+      const collides = playerCollidesTree(this, tree);
+
+      if (collides) {
+        gameContext.fx.shake(this.velocity.length * 0.03);
+        const toPlayerTreeRadius = this.position
+          .clone()
+          .subtract(tree.position)
+          .toLength(TREE_RADIUS + 0.1);
+
+        this.position = new Vector(tree.position).add(toPlayerTreeRadius);
+        this.velocity = toPlayerTreeRadius.toLength(
+          Math.max(this.velocity.length * 0.2, 15)
+        );
+      }
+    });
   }
 
   handleTrickNames() {

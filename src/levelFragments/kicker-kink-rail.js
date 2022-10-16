@@ -49,4 +49,5 @@ module.exports = {
   slopes,
   rails,
   tables,
+  trees: [],
 };

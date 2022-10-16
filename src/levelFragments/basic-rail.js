@@ -28,6 +28,8 @@ const slopes = [
   },
 ];
 
+const slopesLength = getTotalSlopeLength(slopes);
+
 module.exports = {
   start: {
     x: 0,
@@ -35,10 +37,11 @@ module.exports = {
   },
   end: {
     x: 0,
-    y: -getTotalSlopeLength(slopes),
+    y: -slopesLength,
   },
   kickers,
   slopes,
   rails,
   tables,
+  trees: [],
 };

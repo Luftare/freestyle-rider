@@ -7,6 +7,8 @@ import { renderKicker, renderKickerShadow } from "./Kicker";
 import { renderRail, renderRailShadow } from "./Rail";
 import { renderTable, renderTableShadow } from "./Table";
 import { renderSlopes, getSlopeAt } from "./Slope";
+import { renderTreeShadow, renderTree } from "./Tree";
+import { generateSideTrees } from "./levelFragments/levelUtils";
 
 module.exports = class GameScene {
   constructor(config) {
@@ -16,7 +18,7 @@ module.exports = class GameScene {
     this.paint = new Paint(canvas);
 
     this.state = {
-      gameLevel,
+      gameLevel: this.preProcessGameLevel(gameLevel),
       player: new Player(config),
       fx: new Fx(canvas),
       particles: [],
@@ -37,6 +39,18 @@ module.exports = class GameScene {
     });
   }
 
+  preProcessGameLevel(gameLevel) {
+    gameLevel.trees = [
+      ...gameLevel.trees,
+      ...generateSideTrees(
+        this.canvas.width,
+        this.canvas.height,
+        Math.abs(gameLevel.end.y)
+      ),
+    ];
+    return gameLevel;
+  }
+
   update(dt) {
     this.state.player.update(dt, this.state);
     this.state.particles.forEach((particle) => particle.update(dt));
@@ -50,9 +64,10 @@ module.exports = class GameScene {
   render(dt) {
     this.canvas.width = this.canvas.width;
     this.state.fx.update(dt);
+    const cameraY = this.state.player.position.y - this.canvas.height * 0.26;
     this.ctx.translate(
       this.canvas.width * 0.5,
-      -this.state.player.position.y + this.canvas.height / 1.3
+      -cameraY + this.canvas.height * 0.5
     );
 
     renderSlopes(this.state.gameLevel.slopes, this.paint);
@@ -74,6 +89,9 @@ module.exports = class GameScene {
     this.state.gameLevel.tables.forEach((table) =>
       renderTableShadow(table, this.paint)
     );
+    this.state.gameLevel.trees.forEach((tree) =>
+      renderTreeShadow(tree, this.paint)
+    );
 
     this.state.gameLevel.kickers.forEach((kicker) => {
       const slope = getSlopeAt(
@@ -88,5 +106,8 @@ module.exports = class GameScene {
     );
     this.state.particles.forEach((particle) => particle.render(this.paint));
     this.state.player.render(this.paint);
+    this.state.gameLevel.trees.forEach((tree) =>
+      renderTree(tree, cameraY, this.paint)
+    );
   }
 };
